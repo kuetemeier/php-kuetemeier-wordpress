@@ -34,12 +34,25 @@ namespace Kuetemeier\WordPress;
 defined( 'ABSPATH' ) || die( 'No direct call!' );
 
 
-class Options extends \Kuetemeier\Collection\Collection {
+abstract class PluginWithModules extends Plugin {
 
-	private $config;
+    private $modules;
 
-	public function __construct($config) {
-		$this->config = config;
-	}
+	/**
+	 * Initialize the plugin, load frontend modules and prepare backend modules.
+	 *
+	 * @param Config  Initial Plugin Config.
+	 *
+	 * @since 0.1.0
+	 */
+	public function __construct( $config = array() ) {
+        parent::__construct($config);
+
+        $this->modules = Modules();
+    }
+
+    public function modules() {
+        return $this->modules;
+    }
 
 }

@@ -34,6 +34,87 @@ namespace Kuetemeier\WordPress;
 defined( 'ABSPATH' ) || die( 'No direct call!' );
 
 
-class Plugin {
+abstract class Plugin {
+
+	private $config;
+	private $options;
+
+
+	/**
+	 * Initialize the plugin, load frontend modules and prepare backend modules.
+	 *
+	 * @param Config  Initial Plugin Config.
+	 *
+	 * @since 0.1.0
+	 */
+	public function __construct( $config = array() ) {
+		$this->config = ( is_array($config) ) ? new Config($config) : $config;
+
+		if (!$this->config()->has('version/this')) {
+			wp_die('Missing "version" configuration for Plugin');
+		}
+
+		if (!$this->config()->has('version/stable')) {
+			wp_die('Missing "version_stable" configuration for Plugin');
+		}
+
+		if (!$this->config()->has('options/key')) {
+			wp_die('Missing "options/key" configuration for Plugin');
+		}
+
+		$this->config()->set('plugin', $this, true);
+
+		$this->options = new Options($this->config());
+	}
+
+
+	public function config() {
+		return $this->config;
+	}
+
+	public function options() {
+		return $this->options;
+	}
+
+	/**
+	 * Cloning is forbidden.
+	 *
+	 * @return void
+	 *
+	 * @since 0.1.0
+	 */
+	public function __clone() {
+		_doing_it_wrong( __FUNCTION__, esc_html__( 'Don\'t clone me!', 'kuetemeier-essentials' ), esc_attr( $this->version() ) );
+	}
+
+
+	/**
+	 * Unserializing instances of this class is forbidden.
+	 *
+	 * @return void
+	 *
+	 * @since 0.1.0
+	 */
+	public function __wakeup() {
+		_doing_it_wrong( __FUNCTION__, esc_html__( 'No wake up please!', 'kuetemeier-essentials' ), esc_attr( $this->version() ) );
+	}
+
+
+	/**
+	 * Checks if this plugin is based on a known stable version.
+	 *
+	 * Hint: this may not be the 'last' stable verstion.
+	 *
+	 * @return  bool True if it is a stable version, false otherwise.
+	 *
+	 * @since 0.1.11
+	 */
+	public function is_stable_version() {
+		return ( version_compare( $this->config()->get('version/this'), $this->config()->get('version/stable') ) === 0 );
+	}
+
+	public function get_version() {
+		return $this->config()->get('version/this');
+	}
 
 }

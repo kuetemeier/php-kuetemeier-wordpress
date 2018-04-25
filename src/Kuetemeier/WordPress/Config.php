@@ -36,5 +36,18 @@ defined( 'ABSPATH' ) || die( 'No direct call!' );
 
 class Config extends \Kuetemeier\Collection\Collection {
 
+    public function __construct($initValues = null) {
+        parent::__construct($initValues);
 
+        $this->get_options_from_db();
+    }
+
+    public function get_options_from_db() {
+        $db_key = $this->get('plugin/options/key');
+        $this->set('options', get_option($db_key));
+    }
+
+    public function init() {
+        // TODO: init db, if values not found.
+    }
 }

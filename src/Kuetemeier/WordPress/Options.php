@@ -39,7 +39,7 @@ class Options extends \Kuetemeier\Collection\Collection {
 	private $config;
 
 	public function __construct($config) {
-		$this->config = config;
+		$this->config = $config;
 	}
 
 }

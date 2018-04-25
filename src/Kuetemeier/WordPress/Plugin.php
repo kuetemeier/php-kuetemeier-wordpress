@@ -50,21 +50,30 @@ abstract class Plugin {
 	public function __construct( $config = array() ) {
 		$this->config = ( is_array($config) ) ? new Config($config) : $config;
 
-		if (!$this->config()->has('version/this')) {
-			wp_die('Missing "version" configuration for Plugin');
+		if (!$this->config()->has('plugin/version/this')) {
+			wp_die('Missing "plugin/version/this" configuration for Plugin');
 		}
 
-		if (!$this->config()->has('version/stable')) {
-			wp_die('Missing "version_stable" configuration for Plugin');
+		if (!$this->config()->has('plugin/version/stable')) {
+			wp_die('Missing "plugin/version/stable" configuration for Plugin');
 		}
 
-		if (!$this->config()->has('options/key')) {
-			wp_die('Missing "options/key" configuration for Plugin');
+		if (!$this->config()->has('plugin/options/key')) {
+			wp_die('Missing "plugin/options/key" configuration for Plugin');
 		}
 
-		$this->config()->set('plugin', $this, true);
+		$this->config()->set('plugin/instance', $this, true);
 
 		$this->options = new Options($this->config());
+
+        $modules = new Modules($this->config());
+
+        $modules->init();
+
+        $this->config()->set('modules', $modules, true);
+
+        $this->config()->init();
+
 	}
 
 
@@ -116,5 +125,9 @@ abstract class Plugin {
 	public function get_version() {
 		return $this->config()->get('version/this');
 	}
+
+    protected function modules() {
+        return $this->config->get('modules');
+    }
 
 }

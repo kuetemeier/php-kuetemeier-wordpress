@@ -1,5 +1,5 @@
-# php-kuetemeier-collection
-Description: A common Collection PHP class to use as a baseline in your projects.
+# php-kuetemeier-wordpress
+Description: git remote add origin git@github.com:kuetemeier/php-kuetemeier-wordpress.git
 
 Version: 0.1.0-alpha  
 Latest Stable Version: none

@@ -1,0 +1,33 @@
+{
+  "name": "php-kuetemeier-collection",
+  "version": "0.1.0-alpha",
+  "version_stable": "none",
+  "description": "A common Collection PHP class to use as a baseline in your projects.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "gulp test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kuetemeier/php-kuetemeier-collection.git"
+  },
+  "keywords": [
+    "kuetemeier",
+    "php"
+  ],
+  "author": "Joerg Kuetemeier (https://kuetemeier.de/kontakt)",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/kuetemeier/php-kuetemeier-collection/issues"
+  },
+  "homepage": "https://github.com/kuetemeier/php-kuetemeier-collection#readme",
+  "devDependencies": {
+    "del": "^3.0.0",
+    "gulp": "^3.9.1",
+    "gulp-replace": "^0.6.1",
+    "gulp-sequence": "^1.0.0"
+  }
+}

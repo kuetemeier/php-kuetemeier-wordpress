@@ -22,7 +22,9 @@
     "php"
   ],
   "minimum-stability": "dev",
-  "require": {},
+  "require": {
+    "kuetemeier/collection": "dev-master"
+  },
   "require-dev": {
     "squizlabs/php_codesniffer": "3.*",
     "phpunit/phpunit": "^7",

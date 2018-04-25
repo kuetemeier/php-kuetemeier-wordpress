@@ -1,8 +1,8 @@
 {
-  "name": "php-kuetemeier-collection",
+  "name": "php-kuetemeier-wordpress",
   "version": "0.1.0-alpha",
   "version_stable": "none",
-  "description": "A common Collection PHP class to use as a baseline in your projects.",
+  "description": "A Collection of PHP class for WordPress Plugin Development",
   "main": "index.js",
   "directories": {
     "test": "tests"

@@ -34,8 +34,24 @@ namespace Kuetemeier\WordPress;
 defined( 'ABSPATH' ) || die( 'No direct call!' );
 
 
-abstract class Module extends \Kuetemeier\Collection\Item {
+abstract class PluginModule extends \Kuetemeier\Collection\Item {
+
+    protected $config;
 
     abstract public static function manifest();
 
+    abstract public function common_init();
+
+    abstract public function admin_init();
+
+    abstract public function frontend_init();
+
+    public function __construct($config) {
+        $this->config = $config;
+    }
+/*
+    public function config() {
+        return $this->config();
+    }
+*/
 }

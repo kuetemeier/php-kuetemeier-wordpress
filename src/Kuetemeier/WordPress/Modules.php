@@ -75,4 +75,29 @@ class Modules extends \Kuetemeier\Collection\Collection {
         $this->load_sources($modules_list);
     }
 
+    public function init_module_classes() {
+        $this->map(
+            function($module){
+                return new $module($this->config);
+            }
+        );
+    }
+
+    public function foreach_common_init() {
+        foreach($this->elements as $module) {
+            $module->common_init();
+        }
+    }
+
+    public function foreach_admin_init() {
+        foreach($this->elements as $module) {
+            $module->admin_init();
+        }
+    }
+
+    public function foreach_frontend_init() {
+        foreach($this->elements as $module) {
+            $module->frontend_init();
+        }
+    }
 }

@@ -48,6 +48,9 @@ abstract class Plugin {
 	 * @since 0.1.0
 	 */
 	public function __construct( $config = array() ) {
+		$memory_before = memory_get_usage();
+		$start = microtime(true);
+
 		$this->config = ( is_array($config) ) ? new Config($config) : $config;
 
 		if (!$this->config()->has('plugin/version/this')) {
@@ -72,8 +75,24 @@ abstract class Plugin {
 
         $this->config()->set('modules', $modules, true);
 
-        $this->config()->init();
+		$this->config()->init();
 
+		$modules->init_module_classes();
+
+		$modules->foreach_common_init();
+
+		if (is_admin()) {
+			$modules->foreach_admin_init();
+		} else {
+			$modules->foreach_frontend_init();
+		}
+		$memory_after = memory_get_usage();
+		$time_elapsed_secs = microtime(true) - $start;
+
+		$this->config->set('plugin/memory_usage', $memory_after - $memory_before, true);
+		$this->config->set('plugin/time_elapsed', $time_elapsed_secs, true);
+
+		wp_die($time_elapsed_secs);
 	}
 
 

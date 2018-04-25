@@ -50,4 +50,8 @@ class Config extends \Kuetemeier\Collection\Collection {
     public function init() {
         // TODO: init db, if values not found.
     }
+
+    public function get_option($key) {
+        return $this->get('options/'.$key, $this->get('default/'.$key));
+    }
 }

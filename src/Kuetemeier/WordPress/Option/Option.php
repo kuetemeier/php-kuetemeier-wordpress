@@ -25,7 +25,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Kuetemeier\WordPress;
+namespace Kuetemeier\WordPress\Option;
 
 /*********************************
  * KEEP THIS for security reasons
@@ -34,29 +34,50 @@ namespace Kuetemeier\WordPress;
 defined( 'ABSPATH' ) || die( 'No direct call!' );
 
 
-abstract class PluginModule {
+class Option extends \Kuetemeier\Collection\Collection {
 
-    protected $config;
+	public function __construct($pageConfig, $type='Option', $required = array()) {
 
-    abstract public static function manifest();
+        parent::__construct($pageConfig);
 
-    public function common_init() {
+        array_push($required, 'id');
+
+        foreach($required as $r) {
+            if (!($this->has($r))) {
+                wp_die('FATAL ERROR: A '.$type.' MUST have a "'.$r.'"!');
+            }
+        }
+
+        if (!$this->has('displayFunction')) {
+            $this->set('displayFunction', array(&$this, 'callback__defaultDisplayFunction'));
+        }
+	}
+
+
+	/**
+	 * Default display function.
+	 *
+	 * WARNING: This is a callback. Never call it directly!
+	 * This method has to be public, so WordPress can see and call it.
+	 *
+	 * @param array $args WordPress default args for display functions.
+	 *
+	 * @return void
+	 *
+	 * @since 0.2.2
+	 */
+	public function callback__defaultDisplayFunction( $args ) {
+        if ($this->has('content')) {
+            ?>
+            <div id="<?php echo esc_attr( $this->get('id') ); ?>">
+                <?php echo esc_html( $this->get('content', '') ); ?>
+            </div>
+            <?php
+        }
+	}
+
+
+    public function callback__admin_menu($config) {
         return; // placeholder
-    }
-
-    public function admin_init($options) {
-        $options->registerAdminOptions($this->getAdminOptionSettings());
-    }
-
-    public function getAdminOptionSettings() {
-        return array(); // placeholder
-    }
-
-    public function frontend_init() {
-        return; // placeholder
-    }
-
-    public function __construct($config) {
-        $this->config = $config;
     }
 }

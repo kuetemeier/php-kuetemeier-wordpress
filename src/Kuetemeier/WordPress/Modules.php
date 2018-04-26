@@ -147,13 +147,14 @@ final class Modules extends \Kuetemeier\Collection\PriorityHash {
         );
     }
 
-    public function foreach_admin_init()
+    public function foreach_admin_init($options)
     {
-        $this->foreach(
-            function($id, $module)
+        $this->foreachWithArgs(
+            function($id, $module, $options)
             {
-                $module->admin_init();
-            }
+                $module->admin_init($options);
+            },
+            $options
         );
     }
 

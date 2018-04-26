@@ -121,12 +121,13 @@ abstract class Plugin {
         }
 
         if (is_admin()) {
-            $modules->foreach_admin_init();
+            $this->options = new Options($this->config);
+
+            $modules->foreach_admin_init($this->options);
             if ($pro) {
-                $proModules->foreach_admin_init();
+                $proModules->foreach_admin_init($this->options);
             }
 
-            $this->options = new Options($this->config);
         } else {
             $modules->foreach_frontend_init();
             if ($pro) {

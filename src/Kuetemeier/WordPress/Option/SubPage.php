@@ -34,11 +34,11 @@ namespace Kuetemeier\WordPress\Option;
 defined( 'ABSPATH' ) || die( 'No direct call!' );
 
 
-class Page extends Option {
+class SubPage extends Option {
 
 	public function __construct($pageConfig) {
 
-        parent::__construct($pageConfig, 'Page', array('id', 'title'));
+        parent::__construct($pageConfig, 'SubPage', array('id', 'title'));
 
         $this->set('priority', 100, false);
         $this->set('slug', $this->get('id'), false);
@@ -47,12 +47,19 @@ class Page extends Option {
     }
 
     public function callback__admin_menu($config) {
-		add_menu_page(
-			$this->get('title'), // page title
-			$this->get('menuTitle'), // menu title
-			$this->get('capability'), // capability
-			$this->get('slug'), // menu slug
-			$this->get('displayFunction') // function
-		);
+        add_submenu_page(
+            // parent_slug - The slug name for the parent menu (or the file name of a standard WordPress admin page).
+            $this->get('parentSlug'),
+            // page_title - The text to be displayed in the title tags of the page when the menu is selected.
+            $this->get('title'),
+            // menu_title - The text to be used for the menu.
+            $this->get('menuTitle'),
+            // capability - The capability required for this menu to be displayed to the user.
+            $this->get('capability'),
+            // menu_slug - The slug name to refer to this menu by. Should be unique for this menu and only include lowercase alphanumeric, dashes, and underscores characters to be compatible with sanitize_key().
+            $this->get('slug'),
+            // display function
+            $this->get('displayFunction')
+        );
     }
 }

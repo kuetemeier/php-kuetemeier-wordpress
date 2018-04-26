@@ -36,12 +36,90 @@ defined( 'ABSPATH' ) || die( 'No direct call!' );
 
 final class Options extends \Kuetemeier\Collection\Collection {
 
+    const OPTIONTYPES = array(
+        'pages' => '\Kuetemeier\WordPress\Option\Page',
+        'subpages' => '\Kuetemeier\WordPress\Option\SubPage',
+        'tabs' => '\Kuetemeier\WordPress\Option\Tab',
+        'sections' => '\Kuetemeier\WordPress\Option\Section',
+        'setting' => '\Kuetemeier\WordPress\Option\Setting'
+    );
+
     private $config;
 
-
-
 	public function __construct($config) {
-		$this->config = $config;
+        $this->config = $config;
+        $config->set('options', $this);
+
+        foreach(self::OPTIONTYPES as $type => $value) {
+            $this->set($type, new \Kuetemeier\Collection\PriorityHash());
+        }
+
+		add_action( 'admin_init', array( &$this, 'callback__admin_init' ) );
+		add_action( 'admin_menu', array( &$this, 'callback__admin_menu' ) );
+    }
+
+    public function registerAdminOptions($adminOptions) {
+
+        // iterate over all config options
+        foreach(self::OPTIONTYPES as $type => $class) {
+            // do we have some config for this type?
+            if (isset($adminOptions[$type])) {
+                foreach($adminOptions[$type] as $config) {
+                    // create an object with the matching Option class for every config entry
+                    $item = new $class($config);
+
+                    // check, that we do not overwrite an option, that we already have a config for (programming error?)
+                    if ($this->get($type)->has($item->get('id'))) {
+                        wp_die('ERROR - Options: '.$class.' with id "'.$page->get('id').'" already exists');
+                    }
+                    // store the new option
+                    $this->get($type)->set($item->get('id'), $item->get('priority', 100), $item);
+                }
+            }
+        }
+    }
+
+
+	/**
+	 * Callback for WP admin_init. Registeres WP settings for the WP Settings API.
+	 *
+	 * WARNING: This is a callback. Never call it directly!
+	 * This method has to be public, so WordPress can see and call it.
+	 *
+	 * @return void
+	 *
+	 * @since 0.1.0
+	 */
+	public function callback__admin_init() {
+
+//		foreach ( $this->admin_subpages as $subpage ) {
+//			register_setting( $subpage['slug'], $this->get_wp_plugin()->get_db_option_table_base_key(), $subpage['callback__validate_options'] );
+//		}
+
+	}
+
+
+	/**
+	 * Callback for WP admin_menu. Registeres the admin menu with the WP Settings API.
+	 *
+	 * WARNING: This is a callback. Never call it directly!
+	 * This method has to be public, so WordPress can see and call it.
+	 *
+	 * @return void
+	 *
+	 * @since 0.1.0
+	 */
+	public function callback__admin_menu() {
+
+        // iterate over all item types
+        foreach(self::OPTIONTYPES as $type => $class) {
+            $this->get($type)->foreachWithArgs(
+                function($key, $item, $config){
+                    $item->callback__admin_menu($config);
+                },
+                $this->config
+            );
+        }
 	}
 
 }

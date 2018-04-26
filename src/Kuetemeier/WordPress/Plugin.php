@@ -91,8 +91,6 @@ abstract class Plugin {
 
 		$this->config->set('plugin/memory_usage', $memory_after - $memory_before, true);
 		$this->config->set('plugin/time_elapsed', $time_elapsed_secs, true);
-
-		wp_die($time_elapsed_secs);
 	}
 
 

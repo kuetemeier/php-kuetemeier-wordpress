@@ -49,9 +49,4 @@ abstract class PluginModule extends \Kuetemeier\Collection\Item {
     public function __construct($config) {
         $this->config = $config;
     }
-/*
-    public function config() {
-        return $this->config();
-    }
-*/
 }

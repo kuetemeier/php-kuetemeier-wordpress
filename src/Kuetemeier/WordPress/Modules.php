@@ -34,16 +34,7 @@ namespace Kuetemeier\WordPress;
 defined( 'ABSPATH' ) || die( 'No direct call!' );
 
 
-class Modules extends \Kuetemeier\Collection\Collection {
-
-    /**
-     * Holds a list of module IDs to preserve order.
-     *
-     * @see Modules::load_sources() Populated by Modules::load_sources().
-     * @see Modules::init_module_classes() Used by Modules::init_module_classes().
-     */
-    private $id_list = array();
-
+class Modules extends \Kuetemeier\Collection\PriorityHash {
 
     /**
      * Reference to the plugin configuration.
@@ -98,8 +89,11 @@ class Modules extends \Kuetemeier\Collection\Collection {
         // prepare module namespace
         $namespace = '\\'.$this->config->get('plugin/modules/namespace').'\\';
 
+        // create hash for faster lookup
+        $modules_list = array_flip($modules_list);
+
         // iterate over all available modules in priority order
-        foreach($all_modules as $module_id) {
+        foreach($all_modules as $module_id => $prio) {
             // and load php source, if it is in the $modules_list
             if (isset($modules_list[$module_id])) {
                 $srcdir = trailingslashit($this->config->get('plugin/modules/srcdir', trailingslashit($this->config->get('plugin/dir')).'src/module'));
@@ -112,7 +106,7 @@ class Modules extends \Kuetemeier\Collection\Collection {
 
                 $this->config->set('default/'.$module_id, $manifest['config'], true);
 
-                array_push($this->elements, $module_id, $class_name);
+                $this->set($module_id, $prio, $class_name);
             }
         }
     }
@@ -127,34 +121,48 @@ class Modules extends \Kuetemeier\Collection\Collection {
         // load only activated modules (with fallback to all) if this is a frontend call
         $modules_list = (is_admin()) ? $all_modules : $this->config->get('options/modules/enabled', $default_enabled);
 
-        $modules_list = array_unique(array_merge($modules_list, $always_enabled));
+        $modules_list = array_unique($modules_list + $always_enabled);
 
         $this->load_sources($modules_list);
     }
 
-    public function init_module_classes() {
+    public function init_module_classes()
+    {
         $this->map(
-            function($module){
-                return new $module($this->config);
+            function($moduleClass)
+            {
+                return new $moduleClass($this->config);
             }
         );
     }
 
-    public function foreach_common_init() {
-        foreach($this->elements as $module) {
-            $module->common_init();
-        }
+    public function foreach_common_init()
+    {
+        $this->foreach(
+            function($id, $module)
+            {
+                $module->common_init();
+            }
+        );
     }
 
-    public function foreach_admin_init() {
-        foreach($this->elements as $module) {
-            $module->admin_init();
-        }
+    public function foreach_admin_init()
+    {
+        $this->foreach(
+            function($id, $module)
+            {
+                $module->admin_init();
+            }
+        );
     }
 
-    public function foreach_frontend_init() {
-        foreach($this->elements as $module) {
-            $module->frontend_init();
-        }
+    public function foreach_frontend_init()
+    {
+        $this->foreach(
+            function($id, $module)
+            {
+                $module->frontend_init();
+            }
+        );
     }
 }

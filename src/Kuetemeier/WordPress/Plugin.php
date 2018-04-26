@@ -39,7 +39,6 @@ abstract class Plugin {
 	private $config;
 	private $options;
 
-
 	/**
 	 * Initialize the plugin, load frontend modules and prepare backend modules.
 	 *
@@ -48,59 +47,100 @@ abstract class Plugin {
 	 * @since 0.1.0
 	 */
 	public function __construct( $config = array() ) {
-		$memory_before = memory_get_usage();
-		$start = microtime(true);
+		//$memory_before = memory_get_usage();
+		//$start = microtime(true);
 
-		$this->config = ( is_array($config) ) ? new Config($config) : $config;
+        $this->config = ( is_array($config) ) ? new Config($config) : $config;
 
-		if (!$this->config()->has('plugin/version/this')) {
+        if (!$this->config->has('plugin/id')) {
+            wp_die('ERROR Missing "plugin/id" configuration for Plugin');
+        }
+
+		if (!$this->config->has('plugin/version/this')) {
 			wp_die('Missing "plugin/version/this" configuration for Plugin');
 		}
 
-		if (!$this->config()->has('plugin/version/stable')) {
+		if (!$this->config->has('plugin/version/stable')) {
 			wp_die('Missing "plugin/version/stable" configuration for Plugin');
 		}
 
-		if (!$this->config()->has('plugin/options/key')) {
+		if (!$this->config->has('plugin/options/key')) {
 			wp_die('Missing "plugin/options/key" configuration for Plugin');
 		}
 
-		$this->config()->set('plugin/instance', $this, true);
+        $this->config->set('plugin/instance', $this, true);
 
-        $modules = new Modules($this->config());
+        // pro plugin?
+        if ($this->config->get('plugin/version/pro', false)) {
+
+            add_action($this->config->get('plugin/parent').'-Plugin-Loaded', array(&$this, 'callback__ParentLoaded'));
+
+
+        } else {
+            add_action('plugins_loaded', array(&$this, 'callback__plugins_loaded'));
+        }
+    }
+
+
+    public function callback__ParentLoaded($parent_config) {
+
+        $this->config->set('parent', $parent_config, true);
+
+        $modules = new Modules($this->config);
 
         $modules->init();
+        $modules->init_module_classes();
 
-        $this->config()->set('modules', $modules, true);
+        $parent_config->set('pro/modules', $modules, true);
+    }
 
-		$this->config()->init();
+    public function callback__plugins_loaded() {
+        $this->config->getOptionsFromDB();
 
-		$modules->init_module_classes();
+        do_action($this->config->get('plugin/id').'-Plugin-Loaded', $this->config);
 
-		$modules->foreach_common_init();
+        $this->initModules();
+    }
 
-		if (is_admin()) {
-			$modules->foreach_admin_init();
+    protected function initModules() {
+        $modules = new Modules($this->config);
 
-            $this->options = new Options($this->config());
-		} else {
-			$modules->foreach_frontend_init();
-		}
-		$memory_after = memory_get_usage();
-		$time_elapsed_secs = microtime(true) - $start;
+        $modules->init();
+        $modules->init_module_classes();
 
-		$this->config->set('plugin/memory_usage', $memory_after - $memory_before, true);
-		$this->config->set('plugin/time_elapsed', $time_elapsed_secs, true);
-	}
+        $this->config->set('modules', $modules, true);
 
+        $this->config->init();
 
-	public function config() {
-		return $this->config;
-	}
+        $pro = $this->config->has('pro');
+        $proModules = $this->config->get('pro/modules');
 
-	public function options() {
-		return $this->options;
-	}
+        $modules->foreach_common_init();
+        if ($pro) {
+            $proModules->foreach_common_init();
+        }
+
+        if (is_admin()) {
+            $modules->foreach_admin_init();
+            if ($pro) {
+                $proModules->foreach_admin_init();
+            }
+
+            $this->options = new Options($this->config);
+        } else {
+            $modules->foreach_frontend_init();
+            if ($pro) {
+                $proModules->foreach_frontend_init();
+            }
+        }
+
+        //$memory_after = memory_get_usage();
+        //$time_elapsed_secs = microtime(true) - $start;
+
+        //$this->config->set('plugin/memory_usage', $memory_after - $memory_before, true);
+        //$this->config->set('plugin/time_elapsed', $time_elapsed_secs, true);
+    }
+
 
 	/**
 	 * Cloning is forbidden.

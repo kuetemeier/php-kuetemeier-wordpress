@@ -38,11 +38,9 @@ final class Config extends \Kuetemeier\Collection\Collection {
 
     public function __construct($initValues = null) {
         parent::__construct($initValues);
-
-        $this->get_options_from_db();
     }
 
-    public function get_options_from_db() {
+    public function getOptionsFromDB() {
         $db_key = $this->get('plugin/options/key');
         $this->set('options', get_option($db_key));
     }
@@ -51,7 +49,7 @@ final class Config extends \Kuetemeier\Collection\Collection {
         // TODO: init db, if values not found.
     }
 
-    public function get_option($key) {
+    public function getOption($key) {
         return $this->get('options/'.$key, $this->get('default/'.$key));
     }
 }

@@ -34,7 +34,7 @@ namespace Kuetemeier\WordPress;
 defined( 'ABSPATH' ) || die( 'No direct call!' );
 
 
-class Modules extends \Kuetemeier\Collection\PriorityHash {
+final class Modules extends \Kuetemeier\Collection\PriorityHash {
 
     /**
      * Reference to the plugin configuration.
@@ -98,9 +98,11 @@ class Modules extends \Kuetemeier\Collection\PriorityHash {
             if (isset($modules_list[$module_id])) {
                 $srcdir = trailingslashit($this->config->get('plugin/modules/srcdir', trailingslashit($this->config->get('plugin/dir')).'src/module'));
 
-                require_once $srcdir.'class-'.$module_id.'.php';
+                //require_once $srcdir.'class-'.$module_id.'.php';
+                require_once $srcdir.$module_id.'.php';
 
-                $class_name = $namespace.ucfirst($module_id);
+                //$class_name = $namespace.ucfirst($module_id);
+                $class_name = $module_id;
 
                 $manifest = $class_name::manifest();
 

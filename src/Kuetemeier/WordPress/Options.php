@@ -34,9 +34,11 @@ namespace Kuetemeier\WordPress;
 defined( 'ABSPATH' ) || die( 'No direct call!' );
 
 
-class Options extends \Kuetemeier\Collection\Collection {
+final class Options extends \Kuetemeier\Collection\Collection {
 
-	private $config;
+    private $config;
+
+
 
 	public function __construct($config) {
 		$this->config = $config;

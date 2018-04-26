@@ -67,8 +67,6 @@ abstract class Plugin {
 
 		$this->config()->set('plugin/instance', $this, true);
 
-		$this->options = new Options($this->config());
-
         $modules = new Modules($this->config());
 
         $modules->init();
@@ -83,6 +81,8 @@ abstract class Plugin {
 
 		if (is_admin()) {
 			$modules->foreach_admin_init();
+
+            $this->options = new Options($this->config());
 		} else {
 			$modules->foreach_frontend_init();
 		}

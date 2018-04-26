@@ -34,7 +34,7 @@ namespace Kuetemeier\WordPress;
 defined( 'ABSPATH' ) || die( 'No direct call!' );
 
 
-class Config extends \Kuetemeier\Collection\Collection {
+final class Config extends \Kuetemeier\Collection\Collection {
 
     public function __construct($initValues = null) {
         parent::__construct($initValues);

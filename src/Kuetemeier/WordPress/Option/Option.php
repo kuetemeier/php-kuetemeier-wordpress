@@ -66,7 +66,8 @@ class Option extends \Kuetemeier\Collection\Collection {
 	 *
 	 * @since 0.2.2
 	 */
-	public function callback__defaultDisplayFunction( $args ) {
+    public function callback__defaultDisplayFunction($args)
+    {
         if ($this->has('content')) {
             ?>
             <div id="<?php echo esc_attr( $this->get('id') ); ?>">
@@ -77,7 +78,8 @@ class Option extends \Kuetemeier\Collection\Collection {
 	}
 
 
-    public function callback__admin_menu($config) {
+    public function callback__admin_menu($config)
+    {
         return; // placeholder
     }
 }

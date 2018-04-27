@@ -46,13 +46,19 @@ final class Options extends \Kuetemeier\Collection\Collection {
 
     private $config;
 
+    private $currentPage = '';
+    private $currentTab = '';
+
 	public function __construct($config) {
         $this->config = $config;
-        $config->set('options', $this);
+        $config->set('options', $this, true);
 
         foreach(self::OPTIONTYPES as $type => $value) {
             $this->set($type, new \Kuetemeier\Collection\PriorityHash());
         }
+
+		$this->currentPage = ( isset( $_GET['page'] ) ? sanitize_key( $_GET['page'] ) : '' );
+		$this->currentTab = ( isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : '' );
 
 		add_action( 'admin_init', array( &$this, 'callback__admin_init' ) );
 		add_action( 'admin_menu', array( &$this, 'callback__admin_menu' ) );
@@ -65,6 +71,7 @@ final class Options extends \Kuetemeier\Collection\Collection {
             // do we have some config for this type?
             if (isset($adminOptions[$type])) {
                 foreach($adminOptions[$type] as $config) {
+                    $config['config'] = $this->config;
                     // create an object with the matching Option class for every config entry
                     $item = new $class($config);
 
@@ -122,4 +129,23 @@ final class Options extends \Kuetemeier\Collection\Collection {
         }
 	}
 
+
+    public function getPage($id, $noSubPages = false)
+    {
+        if ($noSubPages) {
+            return $this->get('pages')->get($id);
+        } else {
+            return $this->get('subpages')->get($id, $this->get('pages')->get($id));
+        }
+    }
+
+
+    public function getCurrentTab() {
+        return $this->currentTab;
+    }
+
+
+    public function getCurrentPage() {
+        return $this->currentPage;
+    }
 }

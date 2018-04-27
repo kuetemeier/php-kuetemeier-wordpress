@@ -34,38 +34,34 @@ namespace Kuetemeier\WordPress\Option;
 defined( 'ABSPATH' ) || die( 'No direct call!' );
 
 
-class SubPage extends Page {
+class Tab extends Option {
 
 	public function __construct($pageConfig) {
 
-        // shortcut 'parent' for 'parentSlug'
-        if (isset($pageConfig['parent'])) {
-            $pageConfig['parentSlug'] = $pageConfig['parent'];
+        if (isset($pageConfig['subpage'])) {
+            $pageConfig['page'] = $pageConfig['subpage'];
         }
 
-        parent::__construct($pageConfig, 'SubPage', array('id', 'parentSlug', 'title'));
+        parent::__construct($pageConfig, 'Tab', array('id', 'title'));
 
-        if ($this->get('id') === $this->get('parentSlug')) {
-            $page = $this->get('config')->get('options')->getPage($this->get('parentSlug'));
+        $this->set('priority', 100, false);
+        $this->set('slug', $this->get('id'), false);
+        $this->set('capability', 'manage_options', false);
 
-            $page->replaceBySubPage($this);
+
+        if (!$this->has('page')) {
+            wp_die('ERROR: The Tab "'.$this->get('id').'" needs a page or subpage option to register to!');
         }
+
+        $page = $this->get('config')->get('options')->getPage($this->get('page'));
+
+        if (empty($page)) {
+            wp_die('ERROR: The Tab "'.$this->get('id').'" cannot register to the page "'.$this->get('page').'".');
+        }
+
+        $page->registerTab($this);
     }
 
     public function callback__admin_menu($config) {
-        add_submenu_page(
-            // parent_slug - The slug name for the parent menu (or the file name of a standard WordPress admin page).
-            $this->get('parentSlug'),
-            // page_title - The text to be displayed in the title tags of the page when the menu is selected.
-            $this->get('title'),
-            // menu_title - The text to be used for the menu.
-            $this->get('menuTitle'),
-            // capability - The capability required for this menu to be displayed to the user.
-            $this->get('capability'),
-            // menu_slug - The slug name to refer to this menu by. Should be unique for this menu and only include lowercase alphanumeric, dashes, and underscores characters to be compatible with sanitize_key().
-            $this->get('slug'),
-            // display function
-            $this->get('displayFunction')
-        );
     }
 }

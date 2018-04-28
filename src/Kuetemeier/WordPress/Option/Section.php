@@ -42,9 +42,23 @@ class Section extends Option {
         if (isset($pageConfig['subpage'])) {
             $pageConfig['page'] = $pageConfig['subpage'];
         }
+
+        // shortcut 'tab' for 'tabs'
         if (isset($pageConfig['tab'])) {
-            $pageConfig['tab'] = '';
+            $pageConfig['tabs'] = $pageConfig['tab'];
         }
+
+        if (!isset($pageConfig['tabs'])) {
+            $pageConfig['tabs'] = array();
+        }
+
+        // ensure 'tab' is an array
+        if (!is_array($pageConfig['tab'])) {
+            $pageConfig['tab'] = array($pageConfig['tab']);
+        }
+
+        // convert to hash for faster lookups
+        $pageConfig['tabs'] = array_flip($pageConfig['tab']);
 
         parent::__construct($pageConfig, 'Section', array('id', 'page', 'title'));
 
@@ -92,12 +106,45 @@ class Section extends Option {
         }
     }
 
+    /**
+     * Returns true if the given `$tab` is in the list of tabs in this options configuration.
+     */
+    public function isInTab($tab) {
+        if (empty($this->get('tabs'))) {
+            return false;
+        }
+        return (isset($this->get('tabs'){$tab}));
+    }
+
+    /**
+     * Add this section to the WordPress Settings API if the page and tab matches
+     * (or is not detectable, e.g. when submitting to options.php).
+     *
+     * @see https://codex.wordpress.org/Function_Reference/add_settings_section
+     */
     public function addSettingsSection() {
-        add_settings_section(
-            $this->get('id'), // id
-            $this->get('title'), // title
-            array($this, 'callback__displaySection'), // display callback
-            $this->get('page') // page
-        );
+        // get plugin instance of the options class
+        $options = $this->get('options');
+
+        // detect current page and tab (if possible)
+        $currentPage = $options->getCurrentPage();
+        $currentTab = $options->getCurrentTab();
+
+        // we have to add our section if we cannot detect the page or the page matches to our config
+        if (empty($currentPage) || ($currentPage == $this->get('page'))) {
+
+            if ($this->isInTab($currentTab) || empty($this->get('tabs'))) {
+                $page = empty($this->get('tabs')) ? $this->get('page') : $this->get('page').'-'.$currentTab;
+
+                add_settings_section(
+                    $this->get('id'), // id
+                    $this->get('title'), // title
+                    array($this, 'callback__displaySection'), // display callback
+                    $page // page
+                );
+            } else {
+                // only add section to settings if one of the former conditions are met.
+            }
+        }
     }
 }

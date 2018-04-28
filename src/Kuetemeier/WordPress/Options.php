@@ -47,7 +47,6 @@ final class Options extends \Kuetemeier\Collection\Collection {
     private $config;
 
     private $currentPage = '';
-    private $currentTab = '';
 
 	public function __construct($config) {
         $this->config = $config;
@@ -57,8 +56,7 @@ final class Options extends \Kuetemeier\Collection\Collection {
             $this->set($type, new \Kuetemeier\Collection\PriorityHash());
         }
 
-		$this->currentPage = ( isset( $_GET['page'] ) ? sanitize_key( $_GET['page'] ) : '' );
-		$this->currentTab = ( isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : '' );
+        $this->currentPage = ( isset( $_GET['page'] ) ? sanitize_key( $_GET['page'] ) : '' );
 
 		add_action( 'admin_init', array( &$this, 'callback__admin_init' ) );
 		add_action( 'admin_menu', array( &$this, 'callback__admin_menu' ) );
@@ -142,7 +140,11 @@ final class Options extends \Kuetemeier\Collection\Collection {
 
 
     public function getCurrentTab() {
-        return $this->currentTab;
+        if ($this->get('pages')->has($this->getCurrentPage())) {
+            return $this->getPage($this->getCurrentPage())->getCurrentTab();
+        } else {
+            return '';
+        }
     }
 
 

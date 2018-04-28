@@ -138,22 +138,37 @@ class Page extends Option {
     }
 
     public function displaySections($forTab = '') {
-        do_settings_sections( $page );
-        $sections = $this->get('sections');
-        $keys = $sections->keys();
+        if (empty($this->replaceBySubPage)) {
 
-        foreach ($keys as $key) {
-            $section = $sections->get($key);
+            do_settings_sections( $page );
+            $sections = $this->get('sections');
+            $keys = $sections->keys();
 
-            if ($forTab === $section->get('tab', '')) {
-                $section->displaySection($this->get('config'));
+            foreach ($keys as $key) {
+                $section = $sections->get($key);
+
+                if ($forTab === $section->get('tab', '')) {
+                    $section->displaySection($this->get('config'));
+                }
             }
         }
-
     }
 
     public function replaceBySubPage($subPage) {
         $this->replaceBySubPage = $subPage;
+    }
+
+    public function getCurrentTab() {
+        $currentTab =  ( isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : '' );;
+        $tabs = $this->get('tabs');
+        if (empty($currentTab) || !$tabs->has($currentTab)) {
+            if ($tabs->count() > 0) {
+                $currentTab = $this->get('tabs')->keys()[0];
+            } else {
+                $currentTab = '';
+            }
+        }
+        return $currentTab;
     }
 
     public function callback__defaultDisplayFunction($args)
@@ -161,26 +176,8 @@ class Page extends Option {
         if (empty($this->replaceBySubPage)) {
             $page = $this->get('slug');
 
-            $currentTab = $this->get('config')->get('options')->getCurrentTab();
-            $tabs = $this->get('tabs');
-            if (empty($currentTab) || !$tabs->has($currentTab)) {
-                if ($tabs->count() > 0) {
-                    $currentTab = $this->get('tabs')->keys()[0];
-                } else {
-                    $currentTab = '';
-                }
-            }
 
-            $tab = $currentTab;
-
-            //register_setting($this->get('slug'), 'kuetemeier-essentials', array( &$this, 'sanitizeSettings'));
-            //register_setting('kuetemeier-essentials', 'kuetemeier-essentials', array( &$this, 'sanitizeSettings'));
-
-            //register_setting("kuetemeier", "categories");
-
-
-
-
+            $tab = $this->getCurrentTab();
 
             ?>
             <div class="wrap">
@@ -196,14 +193,15 @@ class Page extends Option {
                         <?php
                     }
                     //$this->displaySections();
-                    $this->displayTabs($currentTab);
+                    do_settings_sections( $page );
+                    $this->displayTabs($tab);
                 ?>
                 <?php settings_errors(); ?>
 
                 <form method="post" action="options.php">
                     <?php
                     settings_fields( $page );
-                    do_settings_sections( $page );
+                    do_settings_sections( $page.'-'.$tab );
                     $dbKey = $this->getDBKey();
                     $saveButtonText = $this->get('config')->get('plugin/options/saveButtonText', 'Save');
                     $resetButtonText = $this->get('config')->get('plugin/options/resetButtonText', 'Reset to Defaults');

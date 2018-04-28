@@ -25,7 +25,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Kuetemeier\WordPress\Option;
+namespace Kuetemeier\WordPress\Settings;
 
 /*********************************
  * KEEP THIS for security reasons
@@ -34,7 +34,7 @@ namespace Kuetemeier\WordPress\Option;
 defined( 'ABSPATH' ) || die( 'No direct call!' );
 
 
-class Option extends \Kuetemeier\Collection\Collection {
+class SettingsItem extends \Kuetemeier\Collection\Collection {
 
     const TSECTION  = 'sections';
     const TTAB      = 'tabs';
@@ -150,6 +150,23 @@ class Option extends \Kuetemeier\Collection\Collection {
     public function successfullyRegisteredWith($parent)
     {
         // intentionall left blank
-        wp_die($parent->get('id'));
     }
+
+    public function getPlugin()
+    {
+        return $this->get('config')->get('_/plugin');
+    }
+
+    public function getPluginOptions() {
+        return $this->get('config')->get('_/options');
+    }
+
+    public function getPluginID() {
+        return $this->get('config')->getPlugin()->getID();
+    }
+
+    public function getDBKey() {
+        return $this->getPluginOptions()->getDBKey();
+    }
+
 }

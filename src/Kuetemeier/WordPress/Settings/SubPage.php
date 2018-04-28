@@ -25,7 +25,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Kuetemeier\WordPress\Option;
+namespace Kuetemeier\WordPress\Settings;
 
 /*********************************
  * KEEP THIS for security reasons
@@ -46,7 +46,7 @@ class SubPage extends Page {
         parent::__construct($pageConfig, array('id', 'parentSlug', 'title'));
 
         if ($this->get('id') === $this->get('parentSlug')) {
-            $page = $this->get('config')->get('options')->getPage($this->get('parentSlug'));
+            $page = $this->getPluginOptions()->getPage($this->get('parentSlug'));
 
             $page->replaceBySubPage($this);
         }

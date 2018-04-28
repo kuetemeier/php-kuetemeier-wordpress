@@ -68,7 +68,7 @@ abstract class Plugin {
 			wp_die('Missing "plugin/options/key" configuration for Plugin');
 		}
 
-        $this->config->set('plugin/instance', $this, true);
+        $this->config->set('_/plugin', $this, true);
 
         // pro plugin?
         if ($this->config->get('plugin/version/pro', false)) {
@@ -108,7 +108,7 @@ abstract class Plugin {
         $modules->init();
         $modules->init_module_classes();
 
-        $this->config->set('modules', $modules, true);
+        $this->config->set('_/modules', $modules, true);
 
         $this->config->init();
 
@@ -189,7 +189,7 @@ abstract class Plugin {
     }
 
     protected function modules() {
-        return $this->config->get('modules');
+        return $this->config->get('_/modules');
     }
 
 }

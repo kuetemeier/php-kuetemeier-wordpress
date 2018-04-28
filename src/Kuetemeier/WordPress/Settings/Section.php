@@ -25,7 +25,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Kuetemeier\WordPress\Option;
+namespace Kuetemeier\WordPress\Settings;
 
 /*********************************
  * KEEP THIS for security reasons
@@ -34,7 +34,7 @@ namespace Kuetemeier\WordPress\Option;
 defined( 'ABSPATH' ) || die( 'No direct call!' );
 
 
-class Section extends Option {
+class Section extends SettingsItem {
 
 	public function __construct($pageConfig) {
 
@@ -69,13 +69,13 @@ class Section extends Option {
         $this->set('capability', 'manage_options', false);
 
 
+        $options = $this->getPluginOptions();
         if (!$this->has('page')) {
             $tabs = $this->get('tabs');
             if (empty($tabs)) {
                 wp_die('ERROR: The Section "'.$this->get('id').'" needs a page, a subpage or a tab option to register to!');
             }
 
-            $options = $this->get('options');
             foreach(array_keys($tabs) as $tabID) {
                 $tab = $options->getTab($tabID);
 
@@ -86,7 +86,7 @@ class Section extends Option {
             }
         } else {
 
-            $page = $this->get('config')->get('options')->getPage($this->get('page'));
+            $page = $options->getPage($this->get('page'));
 
             if (empty($page)) {
                 wp_die('ERROR: The Section "'.$this->get('id').'" cannot register to the page "'.$this->get('page').'".');
@@ -141,7 +141,7 @@ class Section extends Option {
      */
     public function addSettingsSection() {
         // get plugin instance of the options class
-        $options = $this->get('options');
+        $options = $this->getPluginOptions();
 
         // detect current page and tab (if possible)
         $currentPage = $options->getCurrentPage();

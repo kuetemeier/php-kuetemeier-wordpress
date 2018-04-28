@@ -25,7 +25,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Kuetemeier\WordPress\Option;
+namespace Kuetemeier\WordPress\Settings;
 
 /*********************************
  * KEEP THIS for security reasons
@@ -34,7 +34,7 @@ namespace Kuetemeier\WordPress\Option;
 defined( 'ABSPATH' ) || die( 'No direct call!' );
 
 
-class Tab extends Option {
+class Tab extends SettingsItem {
 
 	public function __construct($pageConfig) {
 
@@ -53,7 +53,7 @@ class Tab extends Option {
             wp_die('ERROR: The Tab "'.$this->get('id').'" needs a page or subpage option to register to!');
         }
 
-        $page = $this->get('config')->get('options')->getPage($this->get('page'));
+        $page = $this->getPluginOptions()->getPage($this->get('page'));
 
         if (empty($page)) {
             wp_die('ERROR: The Tab "'.$this->get('id').'" cannot register to the page "'.$this->get('page').'".');

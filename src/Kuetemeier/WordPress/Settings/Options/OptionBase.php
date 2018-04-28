@@ -25,7 +25,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Kuetemeier\WordPress;
+namespace Kuetemeier\WordPress\Settings\Options;
 
 /*********************************
  * KEEP THIS for security reasons
@@ -34,26 +34,5 @@ namespace Kuetemeier\WordPress;
 defined( 'ABSPATH' ) || die( 'No direct call!' );
 
 
-final class Config extends \Kuetemeier\Collection\Collection {
-
-    public function __construct($initValues = null) {
-        parent::__construct($initValues);
-    }
-
-    public function getOptionsFromDB() {
-        $db_key = $this->get('plugin/options/key');
-        $this->set('db-options', get_option($db_key));
-    }
-
-    public function init() {
-        // TODO: init db, if values not found.
-    }
-
-    public function getOption($key) {
-        return $this->get('db-options/'.$key, $this->get('default/'.$key));
-    }
-
-    public function getPlugin() {
-        return $this->get('_/plugin');
-    }
+class CheckBox {
 }

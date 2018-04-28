@@ -25,7 +25,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Kuetemeier\WordPress\Option;
+namespace Kuetemeier\WordPress\Settings;
 
 /*********************************
  * KEEP THIS for security reasons
@@ -34,7 +34,7 @@ namespace Kuetemeier\WordPress\Option;
 defined( 'ABSPATH' ) || die( 'No direct call!' );
 
 
-class Page extends Option {
+class Page extends SettingsItem {
 
     private $replaceBySubPage = null;
 
@@ -53,7 +53,7 @@ class Page extends Option {
         $slug = $this->get('slug', $this->get('id'));
         $dbKey = $this->getDBKey();
 
-        $currentPage = $this->get('options')->getCurrentPage();
+        $currentPage = $this->getPluginOptions()->getCurrentPage();
         //if ($slug === $currentPage) {
             //wp_die('Slug: '.$slug.' DB: '.$dbKey);
             //register_setting($slug, $dbKey, array(&$this, 'validateOptions'));
@@ -275,14 +275,6 @@ public function field_callback ( $arguments ) {
         wp_die("Submit: $submit | Page: $page | Tab: $tab");
         wp_die("validate".$this->get('id'));
         return $valid_input; // return validated input
-    }
-
-    private function getPluginID() {
-        return $this->get('config')->getPlugin()->getID();
-    }
-
-    private function getDBKey() {
-        return $this->get('options')->getDBKey();
     }
 
 }

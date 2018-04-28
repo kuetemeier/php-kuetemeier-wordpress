@@ -37,11 +37,11 @@ defined( 'ABSPATH' ) || die( 'No direct call!' );
 final class Options extends \Kuetemeier\Collection\Collection {
 
     const OPTIONTYPES = array(
-        'pages' => '\Kuetemeier\WordPress\Option\Page',
-        'subpages' => '\Kuetemeier\WordPress\Option\SubPage',
-        'tabs' => '\Kuetemeier\WordPress\Option\Tab',
-        'sections' => '\Kuetemeier\WordPress\Option\Section',
-        'setting' => '\Kuetemeier\WordPress\Option\Setting'
+        'pages' => '\Kuetemeier\WordPress\Settings\Page',
+        'subpages' => '\Kuetemeier\WordPress\Settings\SubPage',
+        'tabs' => '\Kuetemeier\WordPress\Settings\Tab',
+        'sections' => '\Kuetemeier\WordPress\Settings\Section',
+        'options' => '\Kuetemeier\WordPress\Settings\Option'
     );
 
     private $config;
@@ -50,7 +50,7 @@ final class Options extends \Kuetemeier\Collection\Collection {
 
 	public function __construct($config) {
         $this->config = $config;
-        $config->set('options', $this, true);
+        $config->set('_/options', $this, true);
 
         foreach(self::OPTIONTYPES as $type => $value) {
             $this->set($type, new \Kuetemeier\Collection\PriorityHash());
@@ -70,7 +70,7 @@ final class Options extends \Kuetemeier\Collection\Collection {
             if (isset($adminOptions[$type])) {
                 foreach($adminOptions[$type] as $config) {
                     $config['config'] = $this->config;
-                    $config['options'] = $this;
+                    $config['_/options'] = $this;
                     // create an object with the matching Option class for every config entry
                     $item = new $class($config);
 

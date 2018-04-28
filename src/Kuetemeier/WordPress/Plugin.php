@@ -36,8 +36,8 @@ defined( 'ABSPATH' ) || die( 'No direct call!' );
 
 abstract class Plugin {
 
-	private $config;
-	private $options;
+	protected $config;
+	protected $options;
 
 	/**
 	 * Initialize the plugin, load frontend modules and prepare backend modules.
@@ -177,12 +177,16 @@ abstract class Plugin {
 	 * @since 0.1.11
 	 */
 	public function is_stable_version() {
-		return ( version_compare( $this->config()->get('version/this'), $this->config()->get('version/stable') ) === 0 );
+		return ( version_compare( $this->config->get('plugin/version/this'), $this->config->get('plugin/version/stable') ) === 0 );
 	}
 
-	public function get_version() {
-		return $this->config()->get('version/this');
-	}
+	public function getVersion() {
+		return $this->config->get('plugin/version/this');
+    }
+
+    public function getID() {
+        return $this->config->get('plugin/id');
+    }
 
     protected function modules() {
         return $this->config->get('modules');

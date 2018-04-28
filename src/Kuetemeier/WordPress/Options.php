@@ -72,6 +72,7 @@ final class Options extends \Kuetemeier\Collection\Collection {
             if (isset($adminOptions[$type])) {
                 foreach($adminOptions[$type] as $config) {
                     $config['config'] = $this->config;
+                    $config['options'] = $this;
                     // create an object with the matching Option class for every config entry
                     $item = new $class($config);
 
@@ -147,5 +148,9 @@ final class Options extends \Kuetemeier\Collection\Collection {
 
     public function getCurrentPage() {
         return $this->currentPage;
+    }
+
+    public function getDBKey() {
+        return $this->config->get('plugin/options/key');
     }
 }

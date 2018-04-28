@@ -42,7 +42,7 @@ final class Config extends \Kuetemeier\Collection\Collection {
 
     public function getOptionsFromDB() {
         $db_key = $this->get('plugin/options/key');
-        $this->set('options', get_option($db_key));
+        $this->set('db-options', get_option($db_key));
     }
 
     public function init() {
@@ -50,6 +50,10 @@ final class Config extends \Kuetemeier\Collection\Collection {
     }
 
     public function getOption($key) {
-        return $this->get('options/'.$key, $this->get('default/'.$key));
+        return $this->get('db-options/'.$key, $this->get('default/'.$key));
+    }
+
+    public function getPlugin() {
+        return $this->get('plugin/instance');
     }
 }

@@ -53,12 +53,12 @@ class Section extends Option {
         }
 
         // ensure 'tab' is an array
-        if (!is_array($pageConfig['tab'])) {
-            $pageConfig['tab'] = array($pageConfig['tab']);
+        if (!is_array($pageConfig['tabs'])) {
+            $pageConfig['tabs'] = array($pageConfig['tabs']);
         }
 
         // convert to hash for faster lookups
-        $pageConfig['tabs'] = array_flip($pageConfig['tab']);
+        $pageConfig['tabs'] = array_flip($pageConfig['tabs']);
 
         parent::__construct($pageConfig, 'Section', array('id', 'page', 'title'));
 

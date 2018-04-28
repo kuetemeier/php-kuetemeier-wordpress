@@ -34,7 +34,7 @@ namespace Kuetemeier\WordPress\Settings;
 defined( 'ABSPATH' ) || die( 'No direct call!' );
 
 
-class Page extends SettingsItem {
+class Page extends SettingBase {
 
     private $replaceBySubPage = null;
 
@@ -69,7 +69,7 @@ class Page extends SettingsItem {
 
         $this->get('sections')->foreach(
             function($key, $section) {
-                $section->addSettingsSection();
+                $section->addSettingsSectionToPage($this);
             }
         );
 /*
@@ -101,16 +101,8 @@ class Page extends SettingsItem {
         );
     }
 
-    public function registerTab($tab) {
-        $this->get('tabs')->set($tab->get('id'), $tab->get('priority'), $tab);
-    }
-
-    public function registerSection($section) {
-        $this->get('sections')->set($section->get('id'), $section->get('priority'), $section);
-    }
-
     public function displayTabs($currentTab) {
-        $tabs = $this->get('tabs');
+        $tabs = $this->get('_registered/tabs');
         $keys = $tabs->keys();
 
 		if (count($keys) > 0 ) {

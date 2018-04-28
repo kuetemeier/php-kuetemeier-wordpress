@@ -34,7 +34,7 @@ namespace Kuetemeier\WordPress\Settings;
 defined( 'ABSPATH' ) || die( 'No direct call!' );
 
 
-class Option extends SettingsItem {
+class Option extends SettingBase {
 
 	public function __construct($optionConfig) {
         parent::__construct($optionConfig);

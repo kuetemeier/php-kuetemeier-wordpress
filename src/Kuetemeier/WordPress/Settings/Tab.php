@@ -34,21 +34,12 @@ namespace Kuetemeier\WordPress\Settings;
 defined( 'ABSPATH' ) || die( 'No direct call!' );
 
 
-class Tab extends SettingsItem {
+class Tab extends SettingBase{
 
 	public function __construct($pageConfig) {
-
-        if (isset($pageConfig['subpage'])) {
-            $pageConfig['page'] = $pageConfig['subpage'];
-        }
-
         parent::__construct($pageConfig, array('id', 'title'));
 
-        $this->set('priority', 100, false);
-        $this->set('slug', $this->get('id'), false);
-        $this->set('capability', 'manage_options', false);
-
-
+/*
         if (!$this->has('page')) {
             wp_die('ERROR: The Tab "'.$this->get('id').'" needs a page or subpage option to register to!');
         }
@@ -58,10 +49,10 @@ class Tab extends SettingsItem {
         if (empty($page)) {
             wp_die('ERROR: The Tab "'.$this->get('id').'" cannot register to the page "'.$this->get('page').'".');
         }
+*/
+        $this->registerMeOn(SettingBase::TPAGE);
 
-        $page->registerTab($this);
+        // $page->registerTab($this);
     }
 
-    public function callback__admin_menu($config) {
-    }
 }

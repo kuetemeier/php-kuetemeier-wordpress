@@ -34,7 +34,7 @@ namespace Kuetemeier\WordPress\Settings;
 defined( 'ABSPATH' ) || die( 'No direct call!' );
 
 
-class Section extends SettingsItem {
+class Section extends SettingBase {
 
 	public function __construct($pageConfig) {
 
@@ -139,7 +139,7 @@ class Section extends SettingsItem {
      *
      * @see https://codex.wordpress.org/Function_Reference/add_settings_section
      */
-    public function addSettingsSection() {
+    public function addSettingsSectionToPage($page) {
         // get plugin instance of the options class
         $options = $this->getPluginOptions();
 

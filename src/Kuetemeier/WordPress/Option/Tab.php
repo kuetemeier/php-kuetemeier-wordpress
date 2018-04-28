@@ -42,7 +42,7 @@ class Tab extends Option {
             $pageConfig['page'] = $pageConfig['subpage'];
         }
 
-        parent::__construct($pageConfig, 'Tab', array('id', 'title'));
+        parent::__construct($pageConfig, array('id', 'title'));
 
         $this->set('priority', 100, false);
         $this->set('slug', $this->get('id'), false);

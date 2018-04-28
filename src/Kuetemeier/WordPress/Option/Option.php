@@ -36,7 +36,17 @@ defined( 'ABSPATH' ) || die( 'No direct call!' );
 
 class Option extends \Kuetemeier\Collection\Collection {
 
-	public function __construct($pageConfig, $type='Option', $required = array()) {
+    const TSECTION  = 'sections';
+    const TTAB      = 'tabs';
+    const TSETTINGS = 'settings';
+
+    const REGISTERED_OPTIONS = array(
+        self::TSECTION  => 'Section',
+        self::TTAB      => 'Tab',
+        self::TSETTINGS => 'Setting'
+    );
+
+	public function __construct($pageConfig, $required = array()) {
 
         parent::__construct($pageConfig);
 
@@ -44,12 +54,16 @@ class Option extends \Kuetemeier\Collection\Collection {
 
         foreach($required as $r) {
             if (!($this->has($r))) {
-                wp_die('FATAL ERROR: A '.$type.' MUST have a "'.$r.'"!');
+                $this->wp_die_error(' MUST have a "'.$r.'"!');
             }
         }
 
         if (!$this->has('displayFunction')) {
             $this->set('displayFunction', array(&$this, 'callback__defaultDisplayFunction'));
+        }
+
+        foreach(array_keys(self::REGISTERED_OPTIONS) as $roption) {
+            $this->set($roption, new \Kuetemeier\Collection\PriorityHash());
         }
 	}
 
@@ -81,5 +95,61 @@ class Option extends \Kuetemeier\Collection\Collection {
     public function callback__admin_menu($config)
     {
         return; // placeholder
+    }
+
+    public function wp_die_error($message, $errorType='ERROR')
+    {
+        wp_die(esc_html($errorType).' - '.esc_html(get_class($this)).' "'.esc_html($this->get('id', 'UNDEFINED')).'": '.esc_html($message));
+    }
+
+    public function getID()
+    {
+        return $this->get('id');
+    }
+
+    public function getPriority()
+    {
+        return $this->get('priority', 100);
+    }
+
+    public function register($type, $item)
+    {
+        if (!isset(self::REGISTERED_OPTIONS[$type])) {
+            $this->wp_die_error('Unknown type "'.html_esc($type).'". Cannot register "'.html_esc($item.getID()).'".');
+        }
+
+        $itemCollection = $this->get($type);
+        $itemID = $item->getID();
+
+        if ($itemCollection->has($itemID)) {
+            $this->wp_die_error(html_esc(self::REGISTERED_OPTIONS[$type]).' with id "'.html_esc($sectionID).'" is already registered');
+        }
+
+        $this->get($type)->set($itemID, $item->getPriority(), $item);
+        $item->successfullyRegisteredWith($this);
+
+    }
+
+    public function registerSection($section) {
+        $this->register(self::TSECTION, $section);
+    }
+
+    public function registerTab($section) {
+        $this->register(self::TTAB, $section);
+    }
+
+    public function registerSetting($section) {
+        $this->register(self::TSETTING, $section);
+    }
+
+    /**
+     * Called after this element is successfully registered to another Option.
+     *
+     * @see Option::register()
+     */
+    public function successfullyRegisteredWith($parent)
+    {
+        // intentionall left blank
+        wp_die($parent->get('id'));
     }
 }

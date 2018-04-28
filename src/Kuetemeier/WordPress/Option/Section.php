@@ -58,25 +58,42 @@ class Section extends Option {
         }
 
         // convert to hash for faster lookups
-        $pageConfig['tabs'] = array_flip($pageConfig['tabs']);
+        if (!empty($pageConfig['tabs'])) {
+            $pageConfig['tabs'] = array_flip($pageConfig['tabs']);
+        }
 
-        parent::__construct($pageConfig, 'Section', array('id', 'page', 'title'));
+
+        parent::__construct($pageConfig, array('id', 'title'));
 
         $this->set('priority', 100, false);
         $this->set('capability', 'manage_options', false);
 
 
         if (!$this->has('page')) {
-            wp_die('ERROR: The Section "'.$this->get('id').'" needs a page or subpage option to register to!');
+            $tabs = $this->get('tabs');
+            if (empty($tabs)) {
+                wp_die('ERROR: The Section "'.$this->get('id').'" needs a page, a subpage or a tab option to register to!');
+            }
+
+            $options = $this->get('options');
+            foreach(array_keys($tabs) as $tabID) {
+                $tab = $options->getTab($tabID);
+
+                if(empty($tab)) {
+                    $this->wp_die_error('Tab "'.esc_html($tabID).'" could not be found.');
+                }
+                $tab->registerSection($this);
+            }
+        } else {
+
+            $page = $this->get('config')->get('options')->getPage($this->get('page'));
+
+            if (empty($page)) {
+                wp_die('ERROR: The Section "'.$this->get('id').'" cannot register to the page "'.$this->get('page').'".');
+            }
+
+            $page->registerSection($this);
         }
-
-        $page = $this->get('config')->get('options')->getPage($this->get('page'));
-
-        if (empty($page)) {
-            wp_die('ERROR: The Section "'.$this->get('id').'" cannot register to the page "'.$this->get('page').'".');
-        }
-
-        $page->registerSection($this);
     }
 
     public function callback__admin_menu($config) {

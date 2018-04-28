@@ -76,7 +76,7 @@ final class Options extends \Kuetemeier\Collection\Collection {
 
                     // check, that we do not overwrite an option, that we already have a config for (programming error?)
                     if ($this->get($type)->has($item->get('id'))) {
-                        wp_die('ERROR - Options: '.$class.' with id "'.$page->get('id').'" already exists');
+                        wp_die('ERROR - Options: '.$class.' with id "'.$item->get('id').'" already exists');
                     }
                     // store the new option
                     $this->get($type)->set($item->get('id'), $item->get('priority', 100), $item);
@@ -138,6 +138,10 @@ final class Options extends \Kuetemeier\Collection\Collection {
         }
     }
 
+    public function getTab($tab, $default=null) {
+        return $this->get('tabs')->get($tab, $default);
+    }
+
 
     public function getCurrentTab() {
         if ($this->get('pages')->has($this->getCurrentPage())) {
@@ -155,4 +159,5 @@ final class Options extends \Kuetemeier\Collection\Collection {
     public function getDBKey() {
         return $this->config->get('plugin/options/key');
     }
+
 }

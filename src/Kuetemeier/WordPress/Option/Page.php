@@ -38,9 +38,9 @@ class Page extends Option {
 
     private $replaceBySubPage = null;
 
-	public function __construct($pageConfig, $type = 'Page', $required = array('id', 'title')) {
+	public function __construct($pageConfig, $required = array('id', 'title')) {
 
-        parent::__construct($pageConfig, $type, $required);
+        parent::__construct($pageConfig, $required);
 
         $this->set('priority', 100, false);
         $this->set('slug', $this->get('id'), false);

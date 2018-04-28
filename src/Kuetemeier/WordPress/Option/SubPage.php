@@ -43,7 +43,7 @@ class SubPage extends Page {
             $pageConfig['parentSlug'] = $pageConfig['parent'];
         }
 
-        parent::__construct($pageConfig, 'SubPage', array('id', 'parentSlug', 'title'));
+        parent::__construct($pageConfig, array('id', 'parentSlug', 'title'));
 
         if ($this->get('id') === $this->get('parentSlug')) {
             $page = $this->get('config')->get('options')->getPage($this->get('parentSlug'));

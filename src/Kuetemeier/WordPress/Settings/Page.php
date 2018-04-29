@@ -34,42 +34,34 @@ namespace Kuetemeier\WordPress\Settings;
 defined( 'ABSPATH' ) || die( 'No direct call!' );
 
 
-class Page extends SettingBase {
+class Page extends SettingsBase {
+
 
     private $replaceBySubPage = null;
 
-	public function __construct($pageConfig, $required = array('id', 'title')) {
+
+    public function __construct($pageConfig, $required = array('id', 'title')) {
 
         parent::__construct($pageConfig, $required);
 
-        $this->set('priority', 100, false);
-        $this->set('slug', $this->get('id'), false);
         $this->set('menuTitle', $this->get('title'), false);
-        $this->set('capability', 'manage_options', false);
-
-        $this->set('tabs', new \Kuetemeier\Collection\PriorityHash());
-        $this->set('sections', new \Kuetemeier\Collection\PriorityHash());
-
-        $slug = $this->get('slug', $this->get('id'));
-        $dbKey = $this->getDBKey();
-
-        $currentPage = $this->getPluginOptions()->getCurrentPage();
-        //if ($slug === $currentPage) {
-            //wp_die('Slug: '.$slug.' DB: '.$dbKey);
-            //register_setting($slug, $dbKey, array(&$this, 'validateOptions'));
-        //}
 
         add_action('admin_init', array(&$this, 'callback__admin_init'));
 
     }
 
-    public function callback__admin_init() {
-        $slug = $this->get('slug', $this->get('id'));
-        $dbKey = $this->getDBKey();
 
-        $this->get('sections')->foreach(
+    public function callback__admin_init() {
+
+        $this->getRegisteredSections()->foreach(
             function($key, $section) {
-                $section->addSettingsSectionToPage($this);
+                $section->adminInitFromPage($this);
+            }
+        );
+
+        $this->getRegisteredTabs()->foreach(
+            function($key, $tab) {
+                $tab->adminInitFromPage($this);
             }
         );
 /*
@@ -88,8 +80,11 @@ class Page extends SettingBase {
             // args
         );
 */
+        $slug = $this->get('slug', $this->get('id'));
+        $dbKey = $this->getDBKey();
         register_setting($slug, $dbKey, array(&$this, 'validateOptions'));
     }
+
 
     public function callback__admin_menu($config) {
 		add_menu_page(
@@ -100,6 +95,7 @@ class Page extends SettingBase {
 			$this->get('displayFunction') // function
         );
     }
+
 
     public function displayTabs($currentTab) {
         $tabs = $this->get('_registered/tabs');
@@ -129,39 +125,25 @@ class Page extends SettingBase {
 
     }
 
-    public function displaySections($forTab = '') {
-        if (empty($this->replaceBySubPage)) {
-
-            do_settings_sections( $page );
-            $sections = $this->get('sections');
-            $keys = $sections->keys();
-
-            foreach ($keys as $key) {
-                $section = $sections->get($key);
-
-                if ($forTab === $section->get('tab', '')) {
-                    $section->displaySection($this->get('config'));
-                }
-            }
-        }
-    }
 
     public function replaceBySubPage($subPage) {
         $this->replaceBySubPage = $subPage;
     }
 
+
     public function getCurrentTab() {
         $currentTab =  ( isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : '' );;
-        $tabs = $this->get('tabs');
+        $tabs = $this->getRegisteredTabs();
         if (empty($currentTab) || !$tabs->has($currentTab)) {
             if ($tabs->count() > 0) {
-                $currentTab = $this->get('tabs')->keys()[0];
+                $currentTab = $tabs->keys()[0];
             } else {
                 $currentTab = '';
             }
         }
         return $currentTab;
     }
+
 
     public function callback__defaultDisplayFunction($args)
     {
@@ -193,7 +175,7 @@ class Page extends SettingBase {
                 <form method="post" action="options.php">
                     <?php
                     settings_fields( $page );
-                    do_settings_sections( $page.'-'.$tab );
+                    do_settings_sections( $page.'-t-'.$tab );
                     $dbKey = $this->getDBKey();
                     $saveButtonText = $this->get('config')->get('plugin/options/saveButtonText', 'Save');
                     $resetButtonText = $this->get('config')->get('plugin/options/resetButtonText', 'Reset to Defaults');
@@ -210,29 +192,15 @@ class Page extends SettingBase {
         }
     }
 
-    public function sanitizeSettings() {
+
+    public function sanitizeSettings()
+    {
 
     }
 
- /* Setup section_callback */
- public function section_callback( $arguments ) {
-    /* Set up input*/
-    switch( $arguments['id'] ){
-        case "categories" :
-            echo "Categories that will trigger the member only message.";
-            break;
-        case "loginURL":
-            echo "The login URL of your site. ";
-        break;
-    }
-}
-/* Create input fields*/
-public function field_callback ( $arguments ) {
-    echo "<input name=\"kuetemeier-essentials[test1][test2]\" id=\"categories\" type=\"text\" value=\"" .get_option("categories"). "\"\>";
-}
 
-    public function validateOptions($input) {
-
+    public function validateOptions($input)
+    {
         // if we have no data, do nothing.
         if(empty($input)) {
             return array();
@@ -268,5 +236,4 @@ public function field_callback ( $arguments ) {
         wp_die("validate".$this->get('id'));
         return $valid_input; // return validated input
     }
-
 }

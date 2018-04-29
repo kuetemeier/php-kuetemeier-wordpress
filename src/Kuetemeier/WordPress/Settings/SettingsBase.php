@@ -34,7 +34,7 @@ namespace Kuetemeier\WordPress\Settings;
 defined( 'ABSPATH' ) || die( 'No direct call!' );
 
 
-class SettingBase extends \Kuetemeier\Collection\Collection {
+class SettingsBase extends \Kuetemeier\Collection\Collection {
 
     const TTAB = 'Tab';
     const TSECTION = 'Section';
@@ -54,7 +54,8 @@ class SettingBase extends \Kuetemeier\Collection\Collection {
     );
 
     const CONFIG_ALIASES = array(
-        'subpage' => 'page'
+        'subpage' => 'page',
+        'tab'     => 'tabs'
     );
 
     const CONFIG_DEFAULTS = array(
@@ -62,28 +63,56 @@ class SettingBase extends \Kuetemeier\Collection\Collection {
         'capability' => 'manage_options'
     );
 
-	public function __construct($settingConfig, $required=array(), $defaults=array()) {
+
+    /**
+     *
+     * Valid config options:
+     *
+     * id           : Unique (for the type) ID of this setting.
+     * slug         : (Defaults to ID) Page, Menu, ID slug.
+     * tabs         : The tab IDs this Setting should register to.
+     * page         : The page ID this Setting should register to.
+     * subpage      : alias for 'page'
+     *
+     */
+	public function __construct($settingsConfig, $required=array(), $defaults=array()) {
 
         // replace aliases if originals are not defined
         foreach(self::CONFIG_ALIASES as $alias => $orig) {
-            if ((isset($settingConfig[$alias])) && (!isset($settingConfig[$orig]))) {
-                $settingConfig[$orig] = $settingConfig[$alias];
-                unset($settingConfig[$alias]);
+            if ((isset($settingsConfig[$alias])) && (!isset($settingsConfig[$orig]))) {
+                $settingsConfig[$orig] = $settingsConfig[$alias];
+                unset($settingsConfig[$alias]);
             }
         }
 
         // TODO: add $defaults to loop
         foreach(self::CONFIG_DEFAULTS as $key => $value) {
-            if (!isset($settingConfig[$key])) {
-                $settingConfig[$key] = $value;
+            if (!isset($settingsConfig[$key])) {
+                $settingsConfig[$key] = $value;
             }
         }
 
-        if (!isset($settingConfig['slug'])) {
-            $settingConfig['slug'] = $settingConfig['id'];
+        // dynamic alias (no const possible in php): 'slug' = 'id' if not defined
+        if (!isset($settingsConfig['slug'])) {
+            $settingsConfig['slug'] = $settingsConfig['id'];
         }
 
-        parent::__construct($settingConfig);
+        // 'tabs' not empty
+        if (!isset($settingsConfig['tabs'])) {
+            $settingsConfig['tabs'] = array();
+        }
+
+        // ensure 'tab' is an array
+        if (!is_array($settingsConfig['tabs'])) {
+            $settingsConfig['tabs'] = array($settingsConfig['tabs']);
+        }
+
+        // convert to hash for faster lookups
+        if (!empty($settingsConfig['tabs'])) {
+            $settingsConfig['tabs'] = array_flip($settingsConfig['tabs']);
+        }
+
+        parent::__construct($settingsConfig);
 
         // set dynamic defaults:
         $this->set('slug', $this->get('id'), false);
@@ -172,12 +201,21 @@ class SettingBase extends \Kuetemeier\Collection\Collection {
         $this->register(self::RSECTION, $section);
     }
 
-    public function registerTab($section) {
-        $this->register(self::RTAB, $section);
+    public function getRegisteredSections()
+    {
+        return $this->get(self::RSECTION);
     }
 
-    public function registerSetting($section) {
-        $this->register(self::RSETTING, $section);
+    public function registerTab($tab) {
+        $this->register(self::RTAB, $tab);
+    }
+
+    public function getRegisteredTabs() {
+        return $this->get(self::RTAB);
+    }
+
+    public function registerSetting($setting) {
+        $this->register(self::RSETTING, $setting);
     }
 
     /**
@@ -195,17 +233,31 @@ class SettingBase extends \Kuetemeier\Collection\Collection {
         return $this->get('config')->get('_/plugin');
     }
 
-    public function getPluginOptions() {
+    public function getPluginOptions()
+    {
         return $this->get('config')->get('_/options');
     }
 
-    public function getPluginID() {
+    public function getPluginID()
+    {
         return $this->get('config')->getPlugin()->getID();
     }
 
-    public function getDBKey() {
+    public function getDBKey()
+    {
         return $this->getPluginOptions()->getDBKey();
     }
+
+    public function getTabs()
+    {
+        $tabs = $this->get('tabs');
+        if (empty($tabs)) {
+            // Return an empty array, even if tabs are not set.
+            return array();
+        }
+        return array_keys($tabs);
+    }
+
 
     public function registerMeOn($optionTypes)
     {
@@ -217,7 +269,7 @@ class SettingBase extends \Kuetemeier\Collection\Collection {
             $optionTypes = array($optionTypes);
         }
 
-        $registereSuccess = false;
+        $registerSuccess = false;
         $options = $this->getPluginOptions();
 
         foreach ($optionTypes as $optionType) {
@@ -229,11 +281,34 @@ class SettingBase extends \Kuetemeier\Collection\Collection {
                     }
                     $pageObject = $options->getPage($page);
                     if (!isset($pageObject)) {
-                        $this->wp_die_error('registerMeOn - page "'.esc_html($page).'" is not defined.');
+                        $this->wp_die_error('registerMeOn - Page "'.esc_html($page).'" is not defined.');
                     } else {
                         switch (get_class($this)) {
                             case 'Kuetemeier\WordPress\Settings\Tab':
                                 $pageObject->registerTab($this);
+                                $registerSuccess = true;
+                                break;
+                            case 'Kuetemeier\WordPress\Settings\Section':
+                                $pageObject->registerSection($this);
+                                $registerSuccess = true;
+                                break;
+                        }
+                    }
+                    break;
+                case self::TTAB:
+                    $tabs = $this->getTabs();
+
+                    foreach ($tabs as $tab) {
+                        $tabObject = $options->getTab($tab);
+                        if (!isset($tabObject)) {
+                            $this->wp_die_error('registerMeOn - Tab "'.esc_html($tab).'" is not defined.');
+                        } else {
+                            switch (get_class($this)) {
+                                case 'Kuetemeier\WordPress\Settings\Section':
+                                    $tabObject->registerSection($this);
+                                    $registerSuccess = true;
+                                    break;
+                            }
                         }
                     }
                     break;
@@ -241,7 +316,9 @@ class SettingBase extends \Kuetemeier\Collection\Collection {
                     $this->wp_die_error('registerMeOn - unknown optionType "'.esc_html($optionType).'"');
             }
         }
-
-        return $registereSuccess;
+        if (!$registerSuccess) {
+            $this->wp_die_error('registerMeOn - Could not register "'.esc_html($this->getID()).'" on "'.esc_html(join(', ', $optionTypes)).'"');
+        }
+        return $registerSuccess;
     }
 }

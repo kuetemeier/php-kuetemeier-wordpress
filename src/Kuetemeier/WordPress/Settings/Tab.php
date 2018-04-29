@@ -33,26 +33,34 @@ namespace Kuetemeier\WordPress\Settings;
  */
 defined( 'ABSPATH' ) || die( 'No direct call!' );
 
+/**
+ * You can register Sections to a Tab.
+ */
+class Tab extends SettingsBase{
 
-class Tab extends SettingBase{
+    public function __construct($pageConfig)
+    {
+        parent::__construct($pageConfig, array('id', 'title', 'page'));
 
-	public function __construct($pageConfig) {
-        parent::__construct($pageConfig, array('id', 'title'));
+        $this->registerMeOn(SettingsBase::TPAGE);
+    }
 
-/*
-        if (!$this->has('page')) {
-            wp_die('ERROR: The Tab "'.$this->get('id').'" needs a page or subpage option to register to!');
+    public function adminInitFromPage($page)
+    {
+        $registeredSections = $this->getRegisteredSections();
+        foreach($registeredSections->keys() as $key) {
+            $section = $registeredSections->get($key);
+            $section->adminInitFromTab($page, $this);
         }
+    }
 
-        $page = $this->getPluginOptions()->getPage($this->get('page'));
-
-        if (empty($page)) {
-            wp_die('ERROR: The Tab "'.$this->get('id').'" cannot register to the page "'.$this->get('page').'".');
+    public function register($type, $item)
+    {
+        if ($type === SettingsBase::RSECTION) {
+            parent::register($type, $item);
+        } else {
+            $this->wp_die_error('You can only register Sections to a Tab. You tried Type: "'.esc_html($type).'" for ID:"'.esc_html($item->getID()).'".');
         }
-*/
-        $this->registerMeOn(SettingBase::TPAGE);
-
-        // $page->registerTab($this);
     }
 
 }

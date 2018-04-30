@@ -36,26 +36,27 @@ defined( 'ABSPATH' ) || die( 'No direct call!' );
 
 class SettingsBase extends \Kuetemeier\Collection\Collection {
 
-    const TTAB = 'Tab';
+    const TPAGE    = 'Page';
+    const TTAB     = 'Tab';
     const TSECTION = 'Section';
-    const TPAGE = 'Page';
-    const TSETTING = 'Setting';
+    const TOPTION  = 'Option';
 
     const RPAGE     = '_registered/pages';
     const RTAB      = '_registered/tabs';
     const RSECTION  = '_registered/sections';
-    const RSETTINGS = '_registered/settings';
+    const ROPTION   = '_registered/options';
 
     const REGISTERED_OPTIONS = array(
         self::RPAGE     => self::TPAGE,
         self::RTAB      => self::TTAB,
         self::RSECTION  => self::TSECTION,
-        self::RSETTINGS => self::TSETTING
+        self::ROPTION   => self::TOPTION
     );
 
     const CONFIG_ALIASES = array(
         'subpage' => 'page',
-        'tab'     => 'tabs'
+        'tab'     => 'tabs',
+        'section' => 'sections'
     );
 
     const CONFIG_DEFAULTS = array(
@@ -110,6 +111,21 @@ class SettingsBase extends \Kuetemeier\Collection\Collection {
         // convert to hash for faster lookups
         if (!empty($settingsConfig['tabs'])) {
             $settingsConfig['tabs'] = array_flip($settingsConfig['tabs']);
+        }
+
+        // 'sections' not empty
+        if (!isset($settingsConfig['sections'])) {
+            $settingsConfig['sections'] = array();
+        }
+
+        // ensure 'sections' is an array
+        if (!is_array($settingsConfig['sections'])) {
+            $settingsConfig['sections'] = array($settingsConfig['sections']);
+        }
+
+        // convert to hash for faster lookups
+        if (!empty($settingsConfig['sections'])) {
+            $settingsConfig['sections'] = array_flip($settingsConfig['sections']);
         }
 
         parent::__construct($settingsConfig);
@@ -179,6 +195,11 @@ class SettingsBase extends \Kuetemeier\Collection\Collection {
         return $this->get('priority', 100);
     }
 
+    public function getTitle()
+    {
+        return $this->get('title');
+    }
+
     public function register($type, $item)
     {
         if (!isset(self::REGISTERED_OPTIONS[$type])) {
@@ -214,8 +235,12 @@ class SettingsBase extends \Kuetemeier\Collection\Collection {
         return $this->get(self::RTAB);
     }
 
-    public function registerSetting($setting) {
-        $this->register(self::RSETTING, $setting);
+    public function registerOption($option) {
+        $this->register(self::ROPTION, $option);
+    }
+
+    public function getRegisteredOptions() {
+        return $this->get(self::ROPTION);
     }
 
     /**
@@ -258,6 +283,15 @@ class SettingsBase extends \Kuetemeier\Collection\Collection {
         return array_keys($tabs);
     }
 
+    public function getSections()
+    {
+        $sections = $this->get('sections');
+        if (empty($sections)) {
+            // Return an empty array, even if tabs are not set.
+            return array();
+        }
+        return array_keys($sections);
+    }
 
     public function registerMeOn($optionTypes)
     {
@@ -296,6 +330,7 @@ class SettingsBase extends \Kuetemeier\Collection\Collection {
                     }
                     break;
                 case self::TTAB:
+                    // get the tabs from the config value (not the registered to!)
                     $tabs = $this->getTabs();
 
                     foreach ($tabs as $tab) {
@@ -312,6 +347,25 @@ class SettingsBase extends \Kuetemeier\Collection\Collection {
                         }
                     }
                     break;
+                case self::TSECTION:
+                    // get the sections from the config value (not the registered to!)
+                    $sections = $this->getSections();
+
+                    foreach ($sections as $section) {
+                        $sectionObject = $options->getSection($section);
+                        if (!isset($sectionObject)) {
+                            $this->wp_die_error('registerMeOn - Section "'.esc_html($section).'" is not defined.');
+                        } else {
+                            switch (get_class($this)) {
+                                case 'Kuetemeier\WordPress\Settings\Option':
+                                    $sectionObject->registerOption($this);
+                                    $registerSuccess = true;
+                                    break;
+                            }
+                        }
+                    }
+                    break;
+
                 default:
                     $this->wp_die_error('registerMeOn - unknown optionType "'.esc_html($optionType).'"');
             }

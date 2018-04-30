@@ -38,5 +38,34 @@ class Option extends SettingsBase
 {
 	public function __construct($optionConfig) {
         parent::__construct($optionConfig);
+
+        $this->registerMeOn(array(SettingsBase::TPAGE, SettingsBase::TTAB, SettingsBase::TSECTION));
+    }
+
+/*
+        add_settings_field(
+            'kuetemeier-essentials-test-id', // id
+            'Categories: ', // title
+            array( $this, 'field_callback' ), // display callback
+            'optimization', // page
+            'test-setting' // section
+            // args
+        );
+*/
+
+    public function adminInitFromSection($page, $section, $sectionID, $pageID)
+    {
+        add_settings_field(
+            $sectionID.'-o-'.$this->getID(), // id
+            $this->getTitle(), // title
+            array(&$this, 'defaultDisplay'), // display function
+            $pageID,
+            $sectionID
+        );
+    }
+
+    public function defaultDisplay($args) {
+        //wp_die("Juhu");
+        echo "Hallo Welt: ".$this->getTitle();
     }
 }

@@ -53,17 +53,24 @@ class Page extends SettingsBase {
 
     public function callback__admin_init() {
 
-        $this->getRegisteredSections()->foreach(
-            function($key, $section) {
-                $section->adminInitFromPage($this);
-            }
-        );
+        $currentPage = $this->getCurrentPage();
 
-        $this->getRegisteredTabs()->foreach(
-            function($key, $tab) {
-                $tab->adminInitFromPage($this);
-            }
-        );
+        // empty for option page submit
+        // TODO, test if nessesariy
+        if (empty($currentPage) || $currentPage === $this->getId()) {
+
+            $this->getRegisteredSections()->foreach(
+                function($key, $section) {
+                    $section->adminInitFromPage($this);
+                }
+            );
+
+            $this->getRegisteredTabs()->foreach(
+                function($key, $tab) {
+                    $tab->adminInitFromPage($this);
+                }
+            );
+        }
 /*
         add_settings_section(
             "test-setting", // id
@@ -128,6 +135,11 @@ class Page extends SettingsBase {
 
     public function replaceBySubPage($subPage) {
         $this->replaceBySubPage = $subPage;
+    }
+
+
+    public function getCurrentPage() {
+        return ( isset( $_GET['page'] ) ? sanitize_key( $_GET['page'] ) : '' );
     }
 
 

@@ -90,23 +90,48 @@ class Section extends SettingsBase {
      */
     public function adminInitFromPage($page)
     {
+        $sectionID = 'k-p-'.$page->get('id').'-s-'.$this->get('id');
+
         add_settings_section(
-            'k-p-'.$page->get('id').'-s-'.$this->get('id'), // id
+            $sectionID, // id
             $this->get('title'), // title
             array($this, 'callback__displaySection'), // display callback
             $page->getID() // page
         );
+
+        $registeredOptions = $this->getRegisteredOptions();
+        foreach($registeredOptions->keys() as $key) {
+            $option = $registeredOptions->get($key);
+            $option->adminInitFromSection($page, $this, $sectionID);
+        }
+
     }
 
 
     public function adminInitFromTab($page, $tab)
     {
+        $sectionID = 'k-t-'.$tab->get('id').'-s-'.$this->get('id');
+        $pageID = $page->getID().'-t-'.$tab->getID();
+        //wp_die($sectionID);
         add_settings_section(
-            'k-t-'.$tab->get('id').'-s-'.$this->get('id'), // id
+            $sectionID, // id
             $this->get('title'), // title
             array($this, 'callback__displaySection'), // display callback
-            $page->getID().'-t-'.$tab->getID() // page
+            $pageID // page
         );
+/*
+        add_settings_section(
+            'ktest', // id
+            'KTEST', // title
+            array($this, 'callback__displaySection'), // display callback
+            $page->getID() // page
+        );
+*/
+        $registeredOptions = $this->getRegisteredOptions();
+        foreach($registeredOptions->keys() as $key) {
+            $option = $registeredOptions->get($key);
+            $option->adminInitFromSection($page, $this, $sectionID, $pageID);
+        }
 
     }
 }

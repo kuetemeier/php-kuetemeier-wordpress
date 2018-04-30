@@ -48,7 +48,8 @@ final class Options extends \Kuetemeier\Collection\Collection {
 
     private $currentPage = '';
 
-	public function __construct($config) {
+    public function __construct($config)
+    {
         $this->config = $config;
         $config->set('_/options', $this, true);
 
@@ -62,7 +63,8 @@ final class Options extends \Kuetemeier\Collection\Collection {
 		add_action( 'admin_menu', array( &$this, 'callback__admin_menu' ) );
     }
 
-    public function registerAdminOptions($adminOptions) {
+    public function registerAdminOptions($adminOptions)
+    {
 
         // iterate over all config options
         foreach(self::OPTIONTYPES as $type => $class) {
@@ -96,7 +98,8 @@ final class Options extends \Kuetemeier\Collection\Collection {
 	 *
 	 * @since 0.1.0
 	 */
-	public function callback__admin_init() {
+    public function callback__admin_init()
+    {
 
 //		foreach ( $this->admin_subpages as $subpage ) {
 //			register_setting( $subpage['slug'], $this->get_wp_plugin()->get_db_option_table_base_key(), $subpage['callback__validate_options'] );
@@ -115,7 +118,8 @@ final class Options extends \Kuetemeier\Collection\Collection {
 	 *
 	 * @since 0.1.0
 	 */
-	public function callback__admin_menu() {
+    public function callback__admin_menu()
+    {
 
         // iterate over all item types
         foreach(self::OPTIONTYPES as $type => $class) {
@@ -140,6 +144,11 @@ final class Options extends \Kuetemeier\Collection\Collection {
 
     public function getTab($tab, $default=null) {
         return $this->get('tabs')->get($tab, $default);
+    }
+
+
+    public function getSection($section, $default=null) {
+        return $this->get('sections')->get($section, $default);
     }
 
 

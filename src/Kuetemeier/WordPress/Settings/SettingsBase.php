@@ -200,6 +200,11 @@ class SettingsBase extends \Kuetemeier\Collection\Collection {
         return $this->get('title');
     }
 
+    public function getModule()
+    {
+        return $this->get('module');
+    }
+
     public function register($type, $item)
     {
         if (!isset(self::REGISTERED_OPTIONS[$type])) {
@@ -374,5 +379,10 @@ class SettingsBase extends \Kuetemeier\Collection\Collection {
             $this->wp_die_error('registerMeOn - Could not register "'.esc_html($this->getID()).'" on "'.esc_html(join(', ', $optionTypes)).'"');
         }
         return $registerSuccess;
+    }
+
+    public function getValue()
+    {
+        return $this->get('config')->getOptionWithDefault($this->getID(), $this->getModule());
     }
 }

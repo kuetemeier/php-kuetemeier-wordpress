@@ -36,22 +36,22 @@ defined( 'ABSPATH' ) || die( 'No direct call!' );
 
 class Option extends SettingsBase
 {
+    private $base;
+
 	public function __construct($optionConfig) {
         parent::__construct($optionConfig);
 
         $this->registerMeOn(array(SettingsBase::TPAGE, SettingsBase::TTAB, SettingsBase::TSECTION));
-    }
 
-/*
-        add_settings_field(
-            'kuetemeier-essentials-test-id', // id
-            'Categories: ', // title
-            array( $this, 'field_callback' ), // display callback
-            'optimization', // page
-            'test-setting' // section
-            // args
-        );
-*/
+        $type = $this->get('type');
+        $settingsOptionTypes = $this->getPluginOptions()->getSettingsOptionTypes();
+        if (isset($settingsOptionTypes[$type])) {
+            $class = $settingsOptionTypes[$type];
+            $this->base = new $class($this);
+        } else {
+            $this->wp_die_error('Unknown option type: '.esc_html($type));
+        }
+    }
 
     public function adminInitFromSection($page, $section, $sectionID, $pageID)
     {
@@ -65,7 +65,10 @@ class Option extends SettingsBase
     }
 
     public function defaultDisplay($args) {
-        //wp_die("Juhu");
-        echo "Hallo Welt: ".$this->getTitle();
+        $this->base->defaultDisplay($args);
+    }
+
+    public function getDefault() {
+        return $this->get('config')->getDefault($this->getID(), $this->getModule());
     }
 }

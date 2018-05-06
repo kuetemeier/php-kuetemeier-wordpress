@@ -42,18 +42,47 @@ final class Config extends \Kuetemeier\Collection\Collection {
 
     public function getOptionsFromDB() {
         $db_key = $this->get('plugin/options/key');
-        $this->set('db-options', get_option($db_key));
+        $this->set('_db-options', get_option($db_key));
     }
 
     public function init() {
         // TODO: init db, if values not found.
     }
 
-    public function getOption($key) {
-        return $this->get('db-options/'.$key, $this->get('default/'.$key));
-    }
-
     public function getPlugin() {
         return $this->get('_/plugin');
+    }
+
+    public function getDefault($key, $module='', $default=null) {
+        if (empty($key)) {
+            return $default;
+        }
+        if (empty($module)) {
+            return $this->get('_default/'.$key, $default);
+        } else {
+            return $this->get('_default/'.$module.'/'.$key, $default);
+        }
+    }
+
+
+    public function getOption($key, $module='', $default=null) {
+        if (empty($key)) {
+            return $default;
+        }
+        if (empty($module)) {
+            return $this->get('_db-options/'.$key, $default);
+        } else {
+            return $this->get('_db-options/'.$module.'/'.$key, $default);
+        }
+    }
+
+
+    public function getOptionWithDefault($key, $module)
+    {
+        $ret =  $this->getOption($key, $module, null);
+        if (!isset($ret)) {
+            $ret = $this->getDefault($key, $module);
+        }
+        return $ret;
     }
 }

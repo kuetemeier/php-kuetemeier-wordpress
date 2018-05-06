@@ -44,6 +44,11 @@ final class Options extends \Kuetemeier\Collection\Collection {
         'options' => '\Kuetemeier\WordPress\Settings\Option'
     );
 
+    const SETTINGSOPTIONTYPES = array(
+        'Checkbox' => '\Kuetemeier\WordPress\Settings\Options\CheckBox'
+    );
+
+
     private $config;
 
     private $currentPage = '';
@@ -167,6 +172,10 @@ final class Options extends \Kuetemeier\Collection\Collection {
 
     public function getDBKey() {
         return $this->config->get('plugin/options/key');
+    }
+
+    public function getSettingsOptionTypes() {
+        return self::SETTINGSOPTIONTYPES;
     }
 
 }

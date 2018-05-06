@@ -105,7 +105,7 @@ final class Modules extends \Kuetemeier\Collection\PriorityHash {
 
                 $manifest = $class_name::manifest();
 
-                $this->config->set('default/'.$module_id, $manifest['config'], true);
+                $this->config->set('_default/'.$module_id, $manifest['config'], true);
 
                 $this->set($module_id, $prio, $class_name);
             }

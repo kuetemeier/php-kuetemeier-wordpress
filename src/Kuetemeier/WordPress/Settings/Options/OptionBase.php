@@ -34,5 +34,69 @@ namespace Kuetemeier\WordPress\Settings\Options;
 defined( 'ABSPATH' ) || die( 'No direct call!' );
 
 
-class CheckBox {
+abstract class OptionBase {
+
+    protected $settingOption;
+
+    public function __construct($settingOption)
+    {
+        $this->settingOption = $settingOption;
+    }
+
+    abstract public function defaultDisplay($args);
+
+	/**
+	 * Helper function for callbackk__display_setting, returns html for the label.
+	 *
+	 * @param string $composedID A composed id for the html id fields.
+	 *
+	 * @return string HTML or '', if label property is empty.
+	 *
+	 * @since 0.2.1
+	 */
+    protected function getHTMLDisplayLabelFor($composedID)
+    {
+
+        $label = $this->getLabelFor();
+		if (empty($label)) {
+			return '';
+		}
+
+		$escID = esc_attr( $composedID );
+		return '<label id="' . $escID . '-label" for="' . $escID . '"> ' . esc_html($label) . '</label>';
+
+    }
+
+    protected function getLabelFor()
+    {
+        return $this->settingOption->get('label');
+    }
+
+
+	/**
+	 * Helper function for callbackk__display_setting, returns html for the description.
+	 *
+	 * @param string $composed_id A composed id for the html id fields.
+	 *
+	 * @return string HTML or '', if description property is empty.
+	 *
+	 * @since 0.2.1
+	 */
+    protected function getHTMLDescription($composedID)
+    {
+        $description = $this->getDescription();
+		if (empty($description)) {
+			return '';
+		}
+
+		$escID = esc_attr($composedID);
+
+		return '<p class="description" id="' . $escID . '-description">' . esc_html($description) . '</p>';
+	}
+
+    protected function getDescription()
+    {
+        return $this->settingOption->get('description');
+    }
+
 }

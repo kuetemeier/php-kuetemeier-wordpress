@@ -268,6 +268,11 @@ class SettingsBase extends \Kuetemeier\Collection\Collection {
         return $this->get('config')->get('_/options');
     }
 
+    public function getPluginModules()
+    {
+        return $this->getPlugin()->getModules();
+    }
+
     public function getPluginID()
     {
         return $this->get('config')->getPlugin()->getID();

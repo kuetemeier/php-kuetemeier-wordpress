@@ -69,7 +69,7 @@ final class Options extends \Kuetemeier\Collection\Collection {
 		add_action( 'admin_menu', array( &$this, 'callback__admin_menu' ) );
     }
 
-    public function registerAdminOptions($adminOptions)
+    public function registerAdminOptions($adminOptions, $manifest)
     {
 
         // iterate over all config options
@@ -97,6 +97,27 @@ final class Options extends \Kuetemeier\Collection\Collection {
         if (isset($adminOptions['options'])) {
             foreach($adminOptions['options'] as $config) {
                 $config['config'] = $this->config;
+
+                // set option parameter 'module' as a default to the module 'id' (from it's manifest),
+                // of the module it is defined in. Better DRY in config definitions.
+                if (!isset($config['module'])) {
+                    $config['module'] = $manifest['id'];
+                }
+
+                $defaults = array(
+                    'pro' => false,
+                    'alpha' => false,
+                    'beta' => false,
+                    'label' => '',
+                    'description' => ''
+                );
+
+                foreach($defaults as $key => $value) {
+                    if (!isset($config[$key])) {
+                        $config[$key] = $value;
+                    }
+                }
+
                 $config['_/options'] = $this;
 
                 if (isset($config['type'])) {
@@ -209,6 +230,50 @@ final class Options extends \Kuetemeier\Collection\Collection {
 
     public function getSettingsOptionTypes() {
         return self::SETTINGSOPTIONTYPES;
+    }
+
+    public function validateOptions($input)
+    {
+        // if we have no data, do nothing.
+        if(empty($input)) {
+            return array();
+        }
+
+        // for enhanced security, create a new empty array
+        $validInput = array();
+
+        $submitID = '';
+		$pageID = '';
+		$tabID = '';
+
+        // break up submit name for submit-type, page and tab
+		foreach ( array_keys( $input ) as $key ) {
+			if ((substr( $key, 0, 7 ) === 'submit|' ) || (substr( $key, 0, 6 ) === 'reset|')) {
+                $parts = explode( '|', $key );
+                $count = count( $parts );
+
+                if ( $count > 0 ) {
+                    $submit = $parts[0];
+                    if ( $count > 1 ) {
+                        $pageID = $parts[1];
+                    }
+                    if ( $count > 2 ) {
+                        $tabID = $parts[2];
+                    }
+                    break;
+                }
+            }
+		}
+
+        if (empty($pageID)) {
+            return array();
+        }
+
+        $page = $this->getPage($pageID);
+
+        $validInput = $page->validateOptions($input, $validInput, $tabID);;
+
+        return $validInput; // return validated input
     }
 
 }

@@ -63,4 +63,24 @@ class Tab extends SettingsBase{
         }
     }
 
+
+    public function validateOptions($input, $validInput)
+    {
+        $registeredOptions = $this->getRegisteredOptions();
+
+        foreach($registeredOptions->keys() as $key) {
+            $option = $registeredOptions->get($key);
+            $validInput = $option->validateOptions($input, $validInput);
+        }
+
+        $registeredSections = $this->getRegisteredSections();
+
+        foreach($registeredSections->keys() as $key) {
+            $section = $registeredSections->get($key);
+            $validInput = $section->validateOptions($input, $validInput);
+        }
+
+        return $validInput;
+    }
+
 }

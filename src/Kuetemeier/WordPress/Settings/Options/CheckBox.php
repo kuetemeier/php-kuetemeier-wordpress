@@ -53,4 +53,40 @@ class CheckBox extends \Kuetemeier\WordPress\Settings\Option {
 		// phpcs:enable WordPress.XSS.EscapeOutput
     }
 
+	/**
+	 * Sanitize the input value for a Checkbox value.
+	 *
+	 * Valid values for Checkboxes are 0 and 1
+	 *
+	 * @param string $input An input vlalue.
+	 *
+	 * @return int A clean and sanitized version or the 'empty' value, if it cannot be sanitized.
+	 *
+	 * @since 0.1.12 Does real sanitization.
+	 */
+	public function sanitize($input) {
+
+		switch ( $input ) {
+			case 0:
+				return 0;
+			case 1:
+				return 1;
+			case '0':
+				return 0;
+			case '1':
+				return 1;
+			case true:
+				return 1;
+			case false:
+				return 0;
+			default:
+				return $this->getEmptyValue();
+		}
+    }
+
+    public function getEmptyValue()
+    {
+        return 0;
+    }
+
 }

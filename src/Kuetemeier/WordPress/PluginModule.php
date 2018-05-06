@@ -45,7 +45,7 @@ abstract class PluginModule {
     }
 
     public function admin_init($options) {
-        $options->registerAdminOptions($this->getAdminOptionSettings());
+        $options->registerAdminOptions($this->getAdminOptionSettings(), $this->manifest());
     }
 
     public function getAdminOptionSettings() {

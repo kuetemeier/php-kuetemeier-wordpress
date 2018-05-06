@@ -71,25 +71,11 @@ class Page extends SettingsBase {
                 }
             );
         }
-/*
-        add_settings_section(
-            "test-setting", // id
-            "Member Only Categories: ", // title
-            array($this, 'section_callback'), // display callback
-            "optimization" // page
-        );
-        add_settings_field(
-            'kuetemeier-essentials-test-id', // id
-            'Categories: ', // title
-            array( $this, 'field_callback' ), // display callback
-            'optimization', // page
-            'test-setting' // section
-            // args
-        );
-*/
+
         $slug = $this->get('slug', $this->get('id'));
         $dbKey = $this->getDBKey();
-        register_setting($slug, $dbKey, array(&$this, 'validateOptions'));
+        //register_setting($slug, $dbKey, array(&$this, 'validateOptions'));
+        register_setting($slug, $dbKey, array($this->getPluginOptions(), 'validateOptions'));
     }
 
 
@@ -211,41 +197,23 @@ class Page extends SettingsBase {
     }
 
 
-    public function validateOptions($input)
+    public function validateOptions($input, $validInput, $tabID)
     {
-        // if we have no data, do nothing.
-        if(empty($input)) {
-            return array();
+        $registeredOptions = $this->getRegisteredOptions();
+
+        foreach($registeredOptions->keys() as $key) {
+            $option = $registeredOptions->get($key);
+            $validInput = $option->validateOptions($input, $validInput);
         }
 
-        // for enhanced security, create a new empty array
-        $valid_input = array();
+        $registeredTabs = $this->getRegisteredTabs();
 
-        $submit = '';
-		$page = '';
-		$tab = '';
+        if ($registeredTabs->has($tabID)) {
+            $tab = $registeredTabs->get($tabID);
 
-        // break up submit name for submit-type, page and tab
-		foreach ( array_keys( $input ) as $key ) {
-			if ((substr( $key, 0, 7 ) === 'submit|' ) || (substr( $key, 0, 6 ) === 'reset|')) {
-                $parts = explode( '|', $key );
-                $count = count( $parts );
+            $validInput = $tab->validateOptions($input, $validInput);
+        }
 
-                if ( $count > 0 ) {
-                    $submit = $parts[0];
-                    if ( $count > 1 ) {
-                        $page = $parts[1];
-                    }
-                    if ( $count > 2 ) {
-                        $tab = $parts[2];
-                    }
-                    break;
-                }
-            }
-		}
-
-        wp_die("Submit: $submit | Page: $page | Tab: $tab");
-        wp_die("validate".$this->get('id'));
-        return $valid_input; // return validated input
+        return $validInput;
     }
 }

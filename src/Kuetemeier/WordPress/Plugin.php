@@ -108,7 +108,7 @@ abstract class Plugin {
         $modules->init();
         $modules->init_module_classes();
 
-        $this->config->set('_/modules', $modules, true);
+        $this->config->set('_modules', $modules, true);
 
         $this->config->init();
 
@@ -188,8 +188,8 @@ abstract class Plugin {
         return $this->config->get('plugin/id');
     }
 
-    protected function modules() {
-        return $this->config->get('_/modules');
+    public function getModules() {
+        return $this->config->get('_modules');
     }
 
 }

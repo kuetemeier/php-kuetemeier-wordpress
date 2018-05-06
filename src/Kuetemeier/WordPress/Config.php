@@ -46,7 +46,34 @@ final class Config extends \Kuetemeier\Collection\Collection {
     }
 
     public function init() {
-        // TODO: init db, if values not found.
+        // test if options exists in DB, if not, create new ones from defaults
+        if ($this->get('_db-options') === false) {
+            $this->set('_default/version', $this->get('plugin/version/this'), 1);
+            update_option(
+                $this->get('plugin/options/key'), //key
+                $this->get('_default'), // value
+                1 // autoload
+            );
+        } else {
+            $newValues = false;
+            $dbOptions = $this->get('_db-options');
+            foreach($this->get('_default') as $key => $value) {
+                if (!isset($dbOptions[$key])) {
+                    $this->set('_db-options/'.$key, $value, 1);
+                    $newValues = true;
+                }
+            }
+
+            if ($newValues) {
+                update_option(
+                    $this->get('plugin/options/key'),
+                    $this->get('_db-options'),
+                    1
+                );
+            }
+        }
+
+        // TODO: Check for versions and different fields
     }
 
     public function getPlugin() {
@@ -80,7 +107,7 @@ final class Config extends \Kuetemeier\Collection\Collection {
     public function getOptionWithDefault($key, $module)
     {
         $ret =  $this->getOption($key, $module, null);
-        if (!isset($ret)) {
+        if ($ret === null) {
             $ret = $this->getDefault($key, $module);
         }
         return $ret;

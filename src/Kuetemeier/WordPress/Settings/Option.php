@@ -113,4 +113,44 @@ abstract class Option extends SettingsBase
     }
 
 
+    abstract public function sanitize($input);
+
+
+    /**
+     * The value for the Field if it is not set.
+     *
+     * For example: 0 or ''
+     * BUT NEVER 'null'! (this is needed internally)
+     */
+    abstract public function getEmptyValue();
+
+
+    public function validateOptions($input, $validInput)
+    {
+        $key = $this->getID();
+        $module = $this->getModule();
+
+        if (isset($input[$module])) {
+            if (isset($input[$module][$key])) {
+                $value = $input[$module][$key];
+
+                $sanitized = $this->sanitize($value);
+
+                if (!isset($validInput[$module])) {
+                    $validInput[$module] = array();
+                }
+                $validInput[$module][$key] = $sanitized;
+
+            } else {
+                $validInput[$module][$key] = $this->getEmptyValue();
+            }
+        } else {
+            $validInput[$module][$key] = $this->getEmptyValue();
+        }
+
+        return $validInput;
+    }
+
+
+
 }

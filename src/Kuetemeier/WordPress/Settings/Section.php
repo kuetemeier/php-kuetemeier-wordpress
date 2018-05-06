@@ -134,4 +134,16 @@ class Section extends SettingsBase {
         }
 
     }
+
+    public function validateOptions($input, $validInput)
+    {
+        $registeredOptions = $this->getRegisteredOptions();
+
+        foreach($registeredOptions->keys() as $key) {
+            $option = $registeredOptions->get($key);
+            $validInput = $option->validateOptions($input, $validInput);
+        }
+
+        return $validInput;
+    }
 }

@@ -41,7 +41,6 @@ final class Options extends \Kuetemeier\Collection\Collection {
         'subpages' => '\Kuetemeier\WordPress\Settings\SubPage',
         'tabs' => '\Kuetemeier\WordPress\Settings\Tab',
         'sections' => '\Kuetemeier\WordPress\Settings\Section',
-        'options' => '\Kuetemeier\WordPress\Settings\Option'
     );
 
     const SETTINGSOPTIONTYPES = array(
@@ -61,6 +60,8 @@ final class Options extends \Kuetemeier\Collection\Collection {
         foreach(self::OPTIONTYPES as $type => $value) {
             $this->set($type, new \Kuetemeier\Collection\PriorityHash());
         }
+        // options are "special" because of their subclasses
+        $this->set('options', new \Kuetemeier\Collection\PriorityHash());
 
         $this->currentPage = ( isset( $_GET['page'] ) ? sanitize_key( $_GET['page'] ) : '' );
 
@@ -73,11 +74,13 @@ final class Options extends \Kuetemeier\Collection\Collection {
 
         // iterate over all config options
         foreach(self::OPTIONTYPES as $type => $class) {
+
             // do we have some config for this type?
             if (isset($adminOptions[$type])) {
                 foreach($adminOptions[$type] as $config) {
                     $config['config'] = $this->config;
                     $config['_/options'] = $this;
+
                     // create an object with the matching Option class for every config entry
                     $item = new $class($config);
 
@@ -88,6 +91,37 @@ final class Options extends \Kuetemeier\Collection\Collection {
                     // store the new option
                     $this->get($type)->set($item->get('id'), $item->get('priority', 100), $item);
                 }
+            }
+        }
+
+        if (isset($adminOptions['options'])) {
+            foreach($adminOptions['options'] as $config) {
+                $config['config'] = $this->config;
+                $config['_/options'] = $this;
+
+                if (isset($config['type'])) {
+                    $class = '\Kuetemeier\WordPress\Settings\Options\\'.trim($config['type']);
+                } elseif (isset($config['class'])) {
+                    $class = $config['class'];
+                } else {
+                    wp_die('ERROR - Options: no "class" or "type" for option "'.esc_html($config['id']).'" found.');
+                }
+
+                $item = '';
+                // create an object with the matching Option class for every config entry
+                if (is_string($class)) {
+                    $item = new $class($config);
+                } else {
+                    $item = $class;
+                    $item->setConfig($config);
+                }
+
+                // check, that we do not overwrite an option, that we already have a config for (programming error?)
+                if ($this->get('options')->has($item->get('id'))) {
+                    wp_die('ERROR - Options: '.$class.' with id "'.$item->get('id').'" already exists');
+                }
+                // store the new option
+                $this->get('options')->set($item->get('id'), $item->get('priority', 100), $item);
             }
         }
     }
@@ -164,7 +198,6 @@ final class Options extends \Kuetemeier\Collection\Collection {
             return '';
         }
     }
-
 
     public function getCurrentPage() {
         return $this->currentPage;

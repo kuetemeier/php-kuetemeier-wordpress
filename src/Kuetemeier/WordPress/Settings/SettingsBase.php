@@ -298,7 +298,7 @@ class SettingsBase extends \Kuetemeier\Collection\Collection {
         return array_keys($sections);
     }
 
-    public function registerMeOn($optionTypes)
+    public function registerMeOn($optionTypes, $isOption=false)
     {
         if (empty($optionTypes)) {
             return;
@@ -322,15 +322,19 @@ class SettingsBase extends \Kuetemeier\Collection\Collection {
                     if (!isset($pageObject)) {
                         $this->wp_die_error('registerMeOn - Page "'.esc_html($page).'" is not defined.');
                     } else {
-                        switch (get_class($this)) {
-                            case 'Kuetemeier\WordPress\Settings\Tab':
-                                $pageObject->registerTab($this);
-                                $registerSuccess = true;
-                                break;
-                            case 'Kuetemeier\WordPress\Settings\Section':
-                                $pageObject->registerSection($this);
-                                $registerSuccess = true;
-                                break;
+                        if ($isOption) {
+
+                        } else {
+                            switch (get_class($this)) {
+                                case 'Kuetemeier\WordPress\Settings\Tab':
+                                    $pageObject->registerTab($this);
+                                    $registerSuccess = true;
+                                    break;
+                                case 'Kuetemeier\WordPress\Settings\Section':
+                                    $pageObject->registerSection($this);
+                                    $registerSuccess = true;
+                                    break;
+                            }
                         }
                     }
                     break;
@@ -343,11 +347,15 @@ class SettingsBase extends \Kuetemeier\Collection\Collection {
                         if (!isset($tabObject)) {
                             $this->wp_die_error('registerMeOn - Tab "'.esc_html($tab).'" is not defined.');
                         } else {
-                            switch (get_class($this)) {
-                                case 'Kuetemeier\WordPress\Settings\Section':
-                                    $tabObject->registerSection($this);
-                                    $registerSuccess = true;
-                                    break;
+                            if ($isOption) {
+
+                            } else {
+                                switch (get_class($this)) {
+                                    case 'Kuetemeier\WordPress\Settings\Section':
+                                        $tabObject->registerSection($this);
+                                        $registerSuccess = true;
+                                        break;
+                                }
                             }
                         }
                     }
@@ -361,11 +369,16 @@ class SettingsBase extends \Kuetemeier\Collection\Collection {
                         if (!isset($sectionObject)) {
                             $this->wp_die_error('registerMeOn - Section "'.esc_html($section).'" is not defined.');
                         } else {
-                            switch (get_class($this)) {
-                                case 'Kuetemeier\WordPress\Settings\Option':
-                                    $sectionObject->registerOption($this);
-                                    $registerSuccess = true;
-                                    break;
+                            if ($isOption) {
+                                $sectionObject->registerOption($this);
+                                $registerSuccess = true;
+                            } else {
+                                switch (get_class($this)) {
+                                    case 'Kuetemeier\WordPress\Settings\Option':
+                                        $sectionObject->registerOption($this);
+                                        $registerSuccess = true;
+                                        break;
+                                }
                             }
                         }
                     }

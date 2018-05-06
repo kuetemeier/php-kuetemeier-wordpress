@@ -34,23 +34,12 @@ namespace Kuetemeier\WordPress\Settings;
 defined( 'ABSPATH' ) || die( 'No direct call!' );
 
 
-class Option extends SettingsBase
+abstract class Option extends SettingsBase
 {
-    private $base;
-
 	public function __construct($optionConfig) {
         parent::__construct($optionConfig);
 
-        $this->registerMeOn(array(SettingsBase::TPAGE, SettingsBase::TTAB, SettingsBase::TSECTION));
-
-        $type = $this->get('type');
-        $settingsOptionTypes = $this->getPluginOptions()->getSettingsOptionTypes();
-        if (isset($settingsOptionTypes[$type])) {
-            $class = $settingsOptionTypes[$type];
-            $this->base = new $class($this);
-        } else {
-            $this->wp_die_error('Unknown option type: '.esc_html($type));
-        }
+        $this->registerMeOn(array(SettingsBase::TPAGE, SettingsBase::TTAB, SettingsBase::TSECTION), true);
     }
 
     public function adminInitFromSection($page, $section, $sectionID, $pageID)
@@ -64,11 +53,64 @@ class Option extends SettingsBase
         );
     }
 
-    public function defaultDisplay($args) {
-        $this->base->defaultDisplay($args);
-    }
-
     public function getDefault() {
         return $this->get('config')->getDefault($this->getID(), $this->getModule());
     }
+
+	/**
+	 * Helper function for callbackk__display_setting, returns html for the label.
+	 *
+	 * @param string $composedID A composed id for the html id fields.
+	 *
+	 * @return string HTML or '', if label property is empty.
+	 *
+	 * @since 0.2.1
+	 */
+    protected function getHTMLDisplayLabelFor($composedID)
+    {
+
+        $label = $this->getLabelFor();
+		if (empty($label)) {
+			return '';
+		}
+
+		$escID = esc_attr( $composedID );
+		return '<label id="' . $escID . '-label" for="' . $escID . '"> ' . esc_html($label) . '</label>';
+
+    }
+
+
+    protected function getLabelFor()
+    {
+        return $this->get('label');
+    }
+
+
+	/**
+	 * Helper function for callbackk__display_setting, returns html for the description.
+	 *
+	 * @param string $composed_id A composed id for the html id fields.
+	 *
+	 * @return string HTML or '', if description property is empty.
+	 *
+	 * @since 0.2.1
+	 */
+    protected function getHTMLDescription($composedID)
+    {
+        $description = $this->getDescription();
+		if (empty($description)) {
+			return '';
+		}
+
+		$escID = esc_attr($composedID);
+
+		return '<p class="description" id="' . $escID . '-description">' . esc_html($description) . '</p>';
+	}
+
+    protected function getDescription()
+    {
+        return $this->get('description');
+    }
+
+
 }

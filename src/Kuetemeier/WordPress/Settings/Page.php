@@ -119,15 +119,21 @@ class Page extends SettingsBase {
                 $tab = $tabs->get($key);
                 $title = $tab->get('title');
 				if ( $key === $currentTab ) {
-					echo '<a class="nav-tab nav-tab-active" href="?page=' . esc_attr( $slug ) . '&tab=' . esc_attr( $key ) . '">' . esc_html( $title ) . '</a>';
+                    echo '<a class="nav-tab nav-tab-active" href="?page=' . esc_attr( $slug ) . '&tab=' . esc_attr( $key ) . '">' . esc_html( $title ) . '</a>';
 				} else {
 					echo '<a class="nav-tab" href="?page=' . esc_attr( $slug ) . '&tab=' . esc_attr( $key ) . '">' . esc_html( $title ) . '</a>';
 				}
 			}
 
             echo '</h2>';
-		}
 
+            if ($tabs->has($currentTab)) {
+                $tab = $tabs->get($currentTab);
+                if ($tab->has('content')) {
+                    echo '<p>'.esc_html($tab->get('content', '')).'</p>';
+                }
+            }
+        }
     }
 
 

@@ -75,7 +75,7 @@ class TextArea extends \Kuetemeier\WordPress\Settings\Option {
             $escHtml .= ' cols="'.esc_attr($this->get('cols')).'"';
         }
 
-        $escHtml .= '/>'.esc_html($value).'</textarea>';
+        $escHtml .= '/>'.esc_textarea($value).'</textarea>';
 		$escHtml .= $this->getHTMLDisplayLabelFor($escID);
 		$escHtml .= $this->getHTMLDescription($escID);
 

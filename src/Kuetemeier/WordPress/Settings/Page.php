@@ -129,8 +129,10 @@ class Page extends SettingsBase {
 
             if ($tabs->has($currentTab)) {
                 $tab = $tabs->get($currentTab);
-                if ($tab->has('content')) {
-                    echo '<p>'.esc_html($tab->get('content', '')).'</p>';
+                if ($tab->hasContent()) {
+                    echo '<p>';
+                    echo $tab->echoContent();
+                    echo '</p>';
                 }
             }
         }
@@ -178,10 +180,10 @@ class Page extends SettingsBase {
                 <h2><?php echo esc_html( $this->getFullPageTitle() ); ?></h2>
 
                 <?php
-                    if ($this->has('content')) {
+                    if ($this->hasContent()) {
                         ?>
                         <div id="<?php echo esc_attr( $this->get('id') ); ?>">
-                            <?php echo esc_html( $this->get('content', '') ); ?>
+                            <?php $this->echoContent(); ?>
                         </div>
                         <?php
                     }

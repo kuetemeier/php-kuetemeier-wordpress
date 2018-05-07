@@ -165,10 +165,10 @@ class SettingsBase extends \Kuetemeier\Collection\Collection {
 	 */
     public function callback__defaultDisplayFunction($args)
     {
-        if ($this->has('content')) {
+        if ($this->hasContent()) {
             ?>
-            <div id="<?php echo esc_attr( $this->get('id') ); ?>">
-                <?php echo esc_html( $this->get('content', '') ); ?>
+            <div id="<?php echo esc_attr( $this->getID() ); ?>">
+                <?php $this->echoContent() ?>
             </div>
             <?php
         }
@@ -402,5 +402,169 @@ class SettingsBase extends \Kuetemeier\Collection\Collection {
     public function getValue()
     {
         return $this->get('config')->getOptionWithDefault($this->getID(), $this->getModule());
+    }
+
+
+    public function hasContent()
+    {
+        return $this->has('content');
+    }
+
+
+    public function getContent($default='')
+    {
+        $content = $this->get('content', $default);
+
+        if (empty($content)) {
+            return $default;
+        }
+
+        if (is_string($content)) {
+            return $content;
+        } elseif (is_callable($content)) {
+            $ret = $content($this);
+            if (isset($ret)) {
+                return $ret;
+            } else {
+                return '';
+            }
+        } elseif (is_array($content)) {
+            $ret = '';
+            foreach($content as $item) {
+                if (is_string($item)) {
+                    $ret .= $item;
+                } elseif (is_callable($item)) {
+                    $r = $item($this);
+                    if (isset($r)) {
+                        $ret .= $r;
+                    }
+                }
+            }
+            return $ret;
+        } else {
+            $this->wp_die_error('content is not a string, a callable or an array.');
+        }
+
+        // Never reached... but safety first.
+        return '';
+    }
+
+
+    public function echoContent()
+    {
+        $content = $this->getContent();
+        if (is_string($content)) {
+            if ($this->get('markdown', false)) {
+                $content = $this->markdownLimited($content);
+            } else {
+                $content = esc_html($content);
+                $content = str_replace('\n', '<br />', $content);
+            }
+            // phpcs:disable WordPress.XSS.EscapeOutput
+            // $esc_html contains only escaped content.
+            echo $content;
+            // phpcs:enable WordPress.XSS.EscapeOutput
+        }
+    }
+
+
+    /**
+     * @see https://gist.github.com/rohit00082002/2773368
+     */
+    function markdownLimited($text)
+    {
+        // Make it HTML safe for starters
+        $text = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+        // Replace for spaces with a tab (for lists and code blocks)
+        $text = str_replace("    ", "\t", $text);
+        // Blockquotes (they have email-styled > at the start)
+        $regex = '^&gt;.*?$(^(?:&gt;).*?\n|\n)*';
+        preg_match_all("~$regex~m", $text, $matches, PREG_SET_ORDER);
+        foreach($matches as $set)
+        {
+            $block = "<blockquote>\n". trim(preg_replace('~(^|\n)[&gt; ]+~', "\n", $set[0])) . "\n</blockquote>\n";
+            $text = str_replace($set[0], $block, $text);
+        }
+        // Titles
+        $text = preg_replace_callback("~(^|\n)(#{1,6}) ([^\n#]+)[^\n]*~", function($match)
+        {
+            $n = strlen($match[2]);
+            return "\n<h$n>". $match[3]. "</h$n>";
+        }, $text);
+        // Lists must start with a tab (four spaces are converted to tabs ^above^)
+        $regex = '(?:^|\n)(?:\t+[\-\+\*0-9.][^\n]+\n+)+';
+        preg_match_all("~$regex~", $text, $matches, PREG_SET_ORDER);
+        // Recursive closure
+        $list = function($block, $top_level = false) use (&$list)
+        {
+            if(is_array($block)) $block = $block[0];
+            // Chop one level of all the lines
+            $block = preg_replace("~(^|\n)\t~", "\n", $block);
+            // Is this an ordered or un-ordered list?
+            $tag = ctype_digit(substr(ltrim($block), 0, 1)) ? 'ol' : 'ul';
+            // Only replace elements of THIS LEVEL with li
+            $block = preg_replace('~(?:^|\n)[^\s]+ ([^\n]+)~', "\n<li>$1</li>", $block);
+            if($top_level) $block .= "\n";
+            $block = "<$tag>$block</$tag>";
+            // Replace nested list items now
+            $block = preg_replace_callback('~(\t[^\n]+\n?)+~', $list, $block);
+            // return the finished list
+            return $top_level ? "\n$block\n\n" : $block;
+        };
+        foreach($matches as $set)
+        {
+            $text = str_replace($set[0], $list(trim($set[0], "\n "), true), $text);
+        }
+        // Paragraphs
+        $text = preg_replace('~\n([^><\t]+)\n~', "\n\n<p>$1</p>\n\n", $text);
+        // Paragraphs (what about fixing the above?)
+        $text = str_replace(array("<p>\n", "\n</p>"), array('<p>', '</p>'), $text);
+        // Lines that end in two spaces require a BR
+        $text = str_replace("  \n", "<br>\n", $text);
+        // Bold, Italic, Code
+        $regex = '([*_`])((?:(?!\1).)+)\1';
+        preg_match_all("~$regex~", $text, $matches, PREG_SET_ORDER);
+        foreach($matches as $set)
+        {
+            if($set[1] == '`') $tag = 'code';
+            elseif($set[1] == '*') $tag = 'b';
+            else $tag = 'em';
+            $text = str_replace($set[0], "<$tag>{$set[2]}</$tag>", $text);
+        }
+        // Links and Images
+        $regex = '(!)*\[([^\]]+)\]\(([^\)]+?)(?: &quot;([\w\s]+)&quot;)*\)';
+        preg_match_all("~$regex~", $text, $matches, PREG_SET_ORDER);
+        foreach($matches as $set)
+        {
+            $title = isset($set[4]) ? " title=\"{$set[4]}\"" : '';
+            if($set[1])
+            {
+                $text = str_replace($set[0], "<img src=\"{$set[3]}\"$title alt=\"{$set[2]}\"/>", $text);
+            }
+            else
+            {
+                $text = str_replace($set[0], "<a href=\"{$set[3]}\"$title>{$set[2]}</a>", $text);
+            }
+        }
+        // Preformated (often code) blocks
+        $regex = '(?:(?:(    |\t)[^\n]*\n)|\n)+';
+        preg_match_all("~$regex~", $text, $matches, PREG_SET_ORDER);
+        foreach($matches as $set)
+        {
+            if( ! trim($set[0])) continue;
+            // If any tags were added (i.e. <p></p>), remove them!
+            $lines = strip_tags($set[0]);
+            // Remove the starting tab from each line
+            $lines = trim(str_replace("\n\t", "\n", $lines), "\n");
+            // Mark strings
+            $regex = '((&#039;)|(&quot;))(?:[^\\\\1]|\\\.)*?\1';
+            $lines = preg_replace("~$regex~", '<span class="string">$0</span>', $lines);
+            // Mark comments
+            $regex = '(/\*.*?\*/)|((#(?!\w+;)|(-- )|(//))[^\n]+)';
+            $lines = preg_replace("~$regex~s", '<span class="comment">$0</span>', $lines);
+            $text = str_replace($set[0], "\n<pre>". $lines. "</pre>\n", $text);
+        }
+        // Reduce crazy newlines
+        return preg_replace("~\n\n\n+~", "\n\n", $text);
     }
 }

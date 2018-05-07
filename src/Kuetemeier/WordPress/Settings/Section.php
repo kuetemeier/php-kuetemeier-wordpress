@@ -46,27 +46,7 @@ class Section extends SettingsBase {
 
     public function callback__displaySection()
     {
-        $content = $this->get('content');
-
-        if (empty($content)) {
-            return;
-        }
-
-        if (is_string($content)) {
-            esc_html_e($content);
-        } elseif (is_callable($content)) {
-            $content($this);
-        } elseif (is_array($content)) {
-            foreach($content as $item) {
-                if (is_string($item)) {
-                    esc_html_e($item);
-                } elseif (is_callable($item)) {
-                    $item($this);
-                }
-            }
-        } else {
-            echo "ERROR: Section content is not a string, a callable or an array.";
-        }
+        $this->echoContent();
     }
 
 

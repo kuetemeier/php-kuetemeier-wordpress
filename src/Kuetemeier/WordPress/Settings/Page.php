@@ -110,7 +110,7 @@ class Page extends SettingsBase {
 
 		if (count($keys) > 0 ) {
 
-			echo '<br /></div>';
+			echo '<br />';
             echo '<h2 class="nav-tab-wrapper">';
 
             $slug = $this->get('slug');

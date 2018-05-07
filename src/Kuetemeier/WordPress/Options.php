@@ -44,7 +44,8 @@ final class Options extends \Kuetemeier\Collection\Collection {
     );
 
     const SETTINGSOPTIONTYPES = array(
-        'Checkbox' => '\Kuetemeier\WordPress\Settings\Options\CheckBox'
+        'Checkbox' => '\Kuetemeier\WordPress\Settings\Options\CheckBox',
+        'TextField' => '\Kuetemeier\WordPress\Settings\Options\TextField'
     );
 
 

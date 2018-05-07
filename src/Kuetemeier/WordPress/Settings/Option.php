@@ -152,5 +152,58 @@ abstract class Option extends SettingsBase
     }
 
 
+    public function sanitizeText($input, $multiLine=false)
+    {
+		if ( ! isset( $input ) ) {
+			return $this->getEmptyValue();
+		}
 
+        if ($this->get('allowScripts', false)) {
+            $allowedTags = wp_kses_allowed_html('post');
+            $allowedTags['script'] = array(
+                'async' => true,
+                'charset' => true,
+                'defer' => true,
+                'src' => true,
+                'type' => true
+            );
+
+            return wp_kses($input, $allowedTags);
+        }
+
+        if ($this->get('allowHTML', false)) {
+            return wp_kses_post($input);
+        }
+
+        if ($multiLine) {
+            return sanitize_textarea_field($input);
+        }
+
+        // default:
+        return sanitize_text_field($input);
+    }
+
+
+    public function displayInput($type, $baseClass)
+    {
+		// Get current value.
+		$value = $this->getValue();
+
+		// Assemble a compound and escaped id string.
+		$escID = esc_attr($this->getID());
+		// Assemble an escaped name string. The name attribute is importan, it defines the keys for the $input array in validation.
+        $escName = esc_attr($this->getDBKey().'['.$this->getModule() . '][' . $this->getID() . ']' );
+
+        $class = $baseClass;
+
+		// Compose output.
+		$escHtml = '<input type="'.esc_attr($type).'" id="' . $escID . '" name="' . $escName . '" value="' . esc_attr( $value ) . '" class="'.esc_attr($class).'" />';
+		$escHtml .= $this->getHTMLDisplayLabelFor($escID);
+		$escHtml .= $this->getHTMLDescription($escID);
+
+		// phpcs:disable WordPress.XSS.EscapeOutput
+		// $esc_html contains only escaped content.
+		echo $escHtml;
+		// phpcs:enable WordPress.XSS.EscapeOutput
+    }
 }

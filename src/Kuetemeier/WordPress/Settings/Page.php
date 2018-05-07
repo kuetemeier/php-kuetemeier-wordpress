@@ -40,19 +40,17 @@ class Page extends SettingsBase {
     private $replaceBySubPage = null;
 
 
-    public function __construct($pageConfig, $required = array('id', 'title')) {
-
+    public function __construct($pageConfig, $required = array('id', 'title'))
+    {
         parent::__construct($pageConfig, $required);
 
         $this->set('menuTitle', $this->get('title'), false);
-
         add_action('admin_init', array(&$this, 'callback__admin_init'));
-
     }
 
 
-    public function callback__admin_init() {
-
+    public function callback__admin_init()
+    {
         $currentPage = $this->getCurrentPage();
 
         // empty for option page submit
@@ -79,9 +77,24 @@ class Page extends SettingsBase {
     }
 
 
-    public function callback__admin_menu($config) {
+    public function getFullPageTitle()
+    {
+        $title = $this->get('title');
+
+        if ($this->has('parentSlug')) {
+            $parentPage = $this->getPluginOptions()->getPage($this->get('parentSlug'));
+            if (isset($parentPage)) {
+                $title = $parentPage->get('title').' > '.$title;
+            }
+        }
+        return $title;
+    }
+
+
+    public function callback__admin_menu($config)
+    {
 		add_menu_page(
-			$this->get('title'), // page title
+			$this->getFullPageTitle(), // page title
 			$this->get('menuTitle'), // menu title
 			$this->get('capability'), // capability
 			$this->get('slug'), // menu slug
@@ -90,7 +103,8 @@ class Page extends SettingsBase {
     }
 
 
-    public function displayTabs($currentTab) {
+    public function displayTabs($currentTab)
+    {
         $tabs = $this->get('_registered/tabs');
         $keys = $tabs->keys();
 
@@ -112,24 +126,25 @@ class Page extends SettingsBase {
 			}
 
             echo '</h2>';
-
-            //$this->displaySections($currentTab);
 		}
 
     }
 
 
-    public function replaceBySubPage($subPage) {
+    public function replaceBySubPage($subPage)
+    {
         $this->replaceBySubPage = $subPage;
     }
 
 
-    public function getCurrentPage() {
+    public function getCurrentPage()
+    {
         return ( isset( $_GET['page'] ) ? sanitize_key( $_GET['page'] ) : '' );
     }
 
 
-    public function getCurrentTab() {
+    public function getCurrentTab()
+    {
         $currentTab =  ( isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : '' );;
         $tabs = $this->getRegisteredTabs();
         if (empty($currentTab) || !$tabs->has($currentTab)) {
@@ -154,7 +169,7 @@ class Page extends SettingsBase {
             ?>
             <div class="wrap">
 
-                <h2><?php echo esc_html( $this->get('title') ); ?></h2>
+                <h2><?php echo esc_html( $this->getFullPageTitle() ); ?></h2>
 
                 <?php
                     if ($this->has('content')) {

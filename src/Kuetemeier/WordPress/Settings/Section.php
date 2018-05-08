@@ -82,7 +82,7 @@ class Section extends SettingsBase {
         $registeredOptions = $this->getRegisteredOptions();
         foreach($registeredOptions->keys() as $key) {
             $option = $registeredOptions->get($key);
-            $option->adminInitFromSection($page, $this, $sectionID);
+            $option->adminInitFromSection($page, $this, $sectionID, $page->getID());
         }
 
     }

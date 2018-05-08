@@ -69,20 +69,14 @@ abstract class Option extends SettingsBase
     protected function getHTMLDisplayLabelFor($composedID)
     {
 
-        $label = $this->getLabelFor();
+        $label = $this->getLabel();
 		if (empty($label)) {
 			return '';
 		}
 
 		$escID = esc_attr( $composedID );
-		return '<label id="' . $escID . '-label" for="' . $escID . '"> ' . esc_html($label) . '</label>';
+		return '<label id="' . $escID . '-label" for="' . $escID . '"> ' . $this->getEscText($label) . '</label>';
 
-    }
-
-
-    protected function getLabelFor()
-    {
-        return $this->get('label');
     }
 
 
@@ -104,13 +98,8 @@ abstract class Option extends SettingsBase
 
 		$escID = esc_attr($composedID);
 
-		return '<p class="description" id="' . $escID . '-description">' . esc_html($description) . '</p>';
+		return '<p class="description" id="' . $escID . '-description">' . $this->getEscText($description) . '</p>';
 	}
-
-    protected function getDescription()
-    {
-        return $this->get('description');
-    }
 
 
     abstract public function sanitize($input);

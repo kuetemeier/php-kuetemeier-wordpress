@@ -80,6 +80,7 @@ final class Config extends \Kuetemeier\Collection\Collection {
         return $this->get('_/plugin');
     }
 
+
     public function getDefault($key, $module='', $default=null) {
         if (empty($key)) {
             return $default;

@@ -450,9 +450,20 @@ class SettingsBase extends \Kuetemeier\Collection\Collection {
     }
 
 
-    public function echoContent()
+    public function getLabel($default='')
     {
-        $content = $this->getContent();
+        return $this->get('label', $default);
+    }
+
+
+    public function getDescription($default='')
+    {
+        return $this->get('description', $default);
+    }
+
+
+    public function getEscText($content)
+    {
         if (is_string($content)) {
             if ($this->get('markdown', false)) {
                 $content = $this->markdownLimited($content);
@@ -460,11 +471,23 @@ class SettingsBase extends \Kuetemeier\Collection\Collection {
                 $content = esc_html($content);
                 $content = str_replace('\n', '<br />', $content);
             }
-            // phpcs:disable WordPress.XSS.EscapeOutput
-            // $esc_html contains only escaped content.
-            echo $content;
-            // phpcs:enable WordPress.XSS.EscapeOutput
+            return $content;
         }
+    }
+
+
+
+    public function echoText($content)
+    {
+        // phpcs:disable WordPress.XSS.EscapeOutput
+        // $esc_html contains only escaped content.
+        echo $this->getEscText($content);
+        // phpcs:enable WordPress.XSS.EscapeOutput
+    }
+
+    public function echoContent()
+    {
+        $this->echoText($this->getContent());
     }
 
 

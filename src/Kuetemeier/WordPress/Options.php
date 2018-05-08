@@ -237,11 +237,14 @@ final class Options extends \Kuetemeier\Collection\Collection {
     {
         // if we have no data, do nothing.
         if(empty($input)) {
-            return array();
+            //return array();
+            return $this->config->getAllOptions();
         }
 
         // for enhanced security, create a new empty array
-        $validInput = array();
+        //$validInput = array();
+        $validInput = $this->config->getAllOptions();
+
 
         $submitID = '';
 		$pageID = '';

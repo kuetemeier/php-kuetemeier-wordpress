@@ -45,6 +45,12 @@ final class Config extends \Kuetemeier\Collection\Collection {
         $this->set('_db-options', get_option($db_key));
     }
 
+
+    public function getAllOptions()
+    {
+        return $this->get('_db-options');
+    }
+
     public function init() {
         // test if options exists in DB, if not, create new ones from defaults
         if ($this->get('_db-options') === false) {

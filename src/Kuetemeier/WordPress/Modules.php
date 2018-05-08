@@ -95,13 +95,13 @@ final class Modules extends \Kuetemeier\Collection\PriorityHash {
         foreach($all_modules as $module_id => $prio) {
             // and load php source, if it is in the $modules_list
             if (isset($modules_list[$module_id])) {
-                $srcdir = trailingslashit($this->config->get('plugin/modules/srcdir', trailingslashit($this->config->get('plugin/dir'), $this->config->get('pro/plugin/dir')).'src/Module'));
+                $srcdir = trailingslashit($this->config->get('plugin/modules/srcdir', trailingslashit($this->config->get('plugin/dir'), $this->config->get('pro/plugin/dir')).'src/Modules'));
 
                 //require_once $srcdir.'class-'.$module_id.'.php';
                 require_once $srcdir.$module_id.'.php';
 
                 //$class_name = $namespace.ucfirst($module_id);
-                $class_name = $namespace.$module_id;
+                $class_name = $namespace.ucfirst($module_id);
 
                 $manifest = $class_name::manifest();
 

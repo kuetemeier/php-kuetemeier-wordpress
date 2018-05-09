@@ -1,7 +1,7 @@
 {
   "name": "php-kuetemeier-wordpress",
-  "version": "1.0.0",
-  "version_stable": "none",
+  "version": "1.0.1",
+  "version_stable": "1.0.1",
   "description": "A Collection of PHP class for WordPress Plugin Development",
   "main": "index.js",
   "directories": {

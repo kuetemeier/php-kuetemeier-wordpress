@@ -45,12 +45,12 @@ abstract class PluginModule {
         $this->config = $config;
     }
 
-    public function common_init()
+    public function commonInit()
     {
         return; // placeholder
     }
 
-    public function admin_init($options)
+    public function adminInit($options)
     {
         $options->registerAdminOptions($this->getAdminOptionSettings(), $this->manifest());
     }
@@ -60,7 +60,7 @@ abstract class PluginModule {
         return array(); // placeholder
     }
 
-    public function frontend_init()
+    public function frontendInit()
     {
         return; // placeholder
     }

@@ -40,20 +40,41 @@ abstract class Option extends SettingsBase
         parent::__construct($optionConfig);
 
         $this->registerMeOn(array(SettingsBase::TPAGE, SettingsBase::TTAB, SettingsBase::TSECTION), true);
+        $this->set('displayFunction', array(&$this, 'defaultDisplay'), 1);
+
     }
 
     public function adminInitFromSection($page, $section, $sectionID, $pageID)
     {
-        add_settings_field(
-            $sectionID.'-o-'.$this->getID(), // id
-            $this->getTitle(), // title
-            array(&$this, 'defaultDisplay'), // display function
-            $pageID,
-            $sectionID
-        );
+        if (!$this->usesCustomDesign()) {
+            add_settings_field(
+                $sectionID.'-o-'.$this->getID(), // id
+                $this->getTitle(), // title
+                //array(&$this, 'defaultDisplay'), // display function
+                $this->get('displayFunction'),
+                $pageID,
+                $sectionID,
+                $this->get('args', array())
+            );
+        }
     }
 
-    public function getDefault() {
+    public function usesCustomDesign()
+    {
+        return $this->get('customDesign', false);
+    }
+
+    public function echoCustomContent()
+    {
+        if ($this->usesCustomDesign()) {
+            $func = $this->get('displayFunction');
+            $args = $this->get('args', array());
+            $func($args);
+        }
+    }
+
+    public function getDefault()
+    {
         return $this->get('config')->getDefault($this->getID(), $this->getModule());
     }
 

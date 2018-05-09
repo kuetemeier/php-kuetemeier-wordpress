@@ -69,14 +69,30 @@ class TextArea extends \Kuetemeier\WordPress\Settings\Option {
         }
 
 		// Compose output.
-        $escHtml = '<textarea id="' . $escID . '" name="' . $escName . '" class="'.esc_attr($class).'" rows="'.esc_attr($rows).'"';
+
+        $usesCustomDesign = $this->usesCustomDesign();
+        $escHtml = '';
+        if ($usesCustomDesign) {
+            $title = $this->get('title', '');
+            if (!empty($title)) {
+                $escHtml .= '<h2>'.esc_html($title).'</h2>';
+            }
+            $label = $this->get('label', '');
+            if (!empty($label)) {
+                $escHtml .= '<p>'.esc_html($label).'</p>';
+            }
+        }
+
+        $escHtml .= '<textarea id="' . $escID . '" name="' . $escName . '" class="'.esc_attr($class).'" rows="'.esc_attr($rows).'"';
 
         if ($this->has('cols')) {
             $escHtml .= ' cols="'.esc_attr($this->get('cols')).'"';
         }
 
         $escHtml .= '/>'.esc_textarea($value).'</textarea>';
-		$escHtml .= $this->getHTMLDisplayLabelFor($escID);
+        if (!$usesCustomDesign) {
+            $escHtml .= $this->getHTMLDisplayLabelFor($escID);
+        }
 		$escHtml .= $this->getHTMLDescription($escID);
 
 		// phpcs:disable WordPress.XSS.EscapeOutput

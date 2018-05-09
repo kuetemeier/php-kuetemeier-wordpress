@@ -106,7 +106,7 @@ abstract class Plugin {
         $modules = new Modules($this->config);
 
         $modules->init();
-        $modules->init_module_classes();
+        $modules->initModuleClasses();
 
         $this->config->set('_modules', $modules, true);
 
@@ -115,23 +115,23 @@ abstract class Plugin {
         $pro = $this->config->has('pro');
         $proModules = $this->config->get('pro/modules');
 
-        $modules->foreach_common_init();
+        $modules->foreachCommonInit();
         if ($pro) {
-            $proModules->foreach_common_init();
+            $proModules->foreachCommonInit();
         }
 
         if (is_admin()) {
             $this->options = new Options($this->config);
 
-            $modules->foreach_admin_init($this->options);
+            $modules->foreachAdminInit($this->options);
             if ($pro) {
-                $proModules->foreach_admin_init($this->options);
+                $proModules->foreachAdminInit($this->options);
             }
 
         } else {
-            $modules->foreach_frontend_init();
+            $modules->foreachFrontendInit();
             if ($pro) {
-                $proModules->foreach_frontend_init();
+                $proModules->foreachFrontendInit();
             }
         }
 

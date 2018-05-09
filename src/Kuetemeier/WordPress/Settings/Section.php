@@ -47,6 +47,12 @@ class Section extends SettingsBase {
     public function callback__displaySection()
     {
         $this->echoContent();
+
+        $registeredOptions = $this->getRegisteredOptions();
+        foreach($registeredOptions->keys() as $key) {
+            $option = $registeredOptions->get($key);
+            $option->echoCustomContent();
+        }
     }
 
 
@@ -92,21 +98,14 @@ class Section extends SettingsBase {
     {
         $sectionID = 'k-t-'.$tab->get('id').'-s-'.$this->get('id');
         $pageID = $page->getID().'-t-'.$tab->getID();
-        //wp_die($sectionID);
+
         add_settings_section(
             $sectionID, // id
             $this->get('title'), // title
             array($this, 'callback__displaySection'), // display callback
             $pageID // page
         );
-/*
-        add_settings_section(
-            'ktest', // id
-            'KTEST', // title
-            array($this, 'callback__displaySection'), // display callback
-            $page->getID() // page
-        );
-*/
+
         $registeredOptions = $this->getRegisteredOptions();
         foreach($registeredOptions->keys() as $key) {
             $option = $registeredOptions->get($key);

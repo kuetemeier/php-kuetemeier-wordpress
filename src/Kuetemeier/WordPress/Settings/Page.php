@@ -98,7 +98,9 @@ class Page extends SettingsBase {
 			$this->get('menuTitle'), // menu title
 			$this->get('capability'), // capability
 			$this->get('slug'), // menu slug
-			$this->get('displayFunction') // function
+            $this->get('displayFunction'), // function
+            '', // icon
+            $this->get('priority')
         );
     }
 
@@ -172,7 +174,16 @@ class Page extends SettingsBase {
             $page = $this->get('slug');
 
 
-            $tab = $this->getCurrentTab();
+            $tabID = $this->getCurrentTab();
+            $tab = $this->get('_registered/tabs')->get($tabID);
+
+            $displayButtons = true;
+            if (isset($tab)) {
+                if ($tab->get('noButtons', false)) {
+                    $displayButtons = false;
+                }
+            }
+
 
             ?>
             <div class="wrap">
@@ -187,26 +198,29 @@ class Page extends SettingsBase {
                         </div>
                         <?php
                     }
-                    //$this->displaySections();
                     do_settings_sections( $page );
-                    $this->displayTabs($tab);
+                    $this->displayTabs($tabID);
                 ?>
                 <?php settings_errors(); ?>
 
                 <form method="post" action="options.php">
                     <?php
                     settings_fields( $page );
-                    do_settings_sections( $page.'-t-'.$tab );
+                    do_settings_sections( $page.'-t-'.$tabID );
                     $dbKey = $this->getDBKey();
                     $saveButtonText = $this->get('config')->get('plugin/options/saveButtonText', 'Save');
                     $resetButtonText = $this->get('config')->get('plugin/options/resetButtonText', 'Reset to Defaults');
 
-                    ?>
+                    if ($displayButtons) {
+                        ?>
 
-                    <p class="submit">
-                        <input name="<?php esc_attr_e($dbKey) ?>[submit|<?php esc_attr_e( $page ); ?>|<?php echo esc_attr( $tab ); ?>]" type="submit" class="button-primary" value="<?php esc_attr_e($saveButtonText); ?>" />
-                        <input name="<?php esc_attr_e($dbKey) ?>[reset|<?php esc_attr_e( $page ); ?>|<?php esc_attr_e( $tab ); ?>]" type="submit" class="button-secondary" value="<?php esc_attr_e($resetButtonText); ?>" />
-                    </p>
+                        <p class="submit">
+                            <input name="<?php esc_attr_e($dbKey) ?>[submit|<?php esc_attr_e( $page ); ?>|<?php echo esc_attr( $tabID ); ?>]" type="submit" class="button-primary" value="<?php esc_attr_e($saveButtonText); ?>" />
+                            <input name="<?php esc_attr_e($dbKey) ?>[reset|<?php esc_attr_e( $page ); ?>|<?php esc_attr_e( $tabID ); ?>]" type="submit" class="button-secondary" value="<?php esc_attr_e($resetButtonText); ?>" />
+                        </p>
+                        <?php
+                    }
+                    ?>
                 </form>
             </div>
             <?php

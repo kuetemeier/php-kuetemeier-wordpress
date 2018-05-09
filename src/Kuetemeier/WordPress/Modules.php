@@ -63,7 +63,7 @@ final class Modules extends \Kuetemeier\Collection\PriorityHash {
      *
      * @param string[] $modules_list Array with module IDs to be loaded.
      */
-    public function load_sources($modules_list = array()) {
+    private function loadSources($modules_list = array()) {
         // prevent a second call of this function
         if (!empty($this->elements)) {
             wp_die("Modules::load_sources: ERROR - Elements of Modules are not empty. Do you try to load_sources twice?");
@@ -124,10 +124,10 @@ final class Modules extends \Kuetemeier\Collection\PriorityHash {
 
         $modules_list = array_unique($modules_list + $always_enabled);
 
-        $this->load_sources($modules_list);
+        $this->loadSources($modules_list);
     }
 
-    public function init_module_classes()
+    public function initModuleClasses()
     {
         $this->map(
             function($moduleClass)
@@ -137,33 +137,33 @@ final class Modules extends \Kuetemeier\Collection\PriorityHash {
         );
     }
 
-    public function foreach_common_init()
+    public function foreachCommonInit()
     {
         $this->foreach(
             function($id, $module)
             {
-                $module->common_init();
+                $module->commonInit();
             }
         );
     }
 
-    public function foreach_admin_init($options)
+    public function foreachAdminInit($options)
     {
         $this->foreachWithArgs(
             function($id, $module, $options)
             {
-                $module->admin_init($options);
+                $module->adminInit($options);
             },
             $options
         );
     }
 
-    public function foreach_frontend_init()
+    public function foreachFrontendInit()
     {
         $this->foreach(
             function($id, $module)
             {
-                $module->frontend_init();
+                $module->frontendInit();
             }
         );
     }

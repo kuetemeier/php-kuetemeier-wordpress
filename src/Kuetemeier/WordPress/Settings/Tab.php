@@ -82,5 +82,4 @@ class Tab extends SettingsBase{
 
         return $validInput;
     }
-
 }

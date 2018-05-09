@@ -1,7 +1,7 @@
 # php-kuetemeier-wordpress
-Description: git remote add origin git@github.com:kuetemeier/php-kuetemeier-wordpress.git
+Description: A Collection of PHP class for WordPress Plugin Development
 
-Version: 0.1.0-alpha  
+Version: 1.0.0  
 Latest Stable Version: none
 
 License: Apache-2.0

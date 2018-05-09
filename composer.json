@@ -3,7 +3,7 @@
   "description": "A Collection of PHP class for WordPress Plugin Development",
   "type": "library",
   "license": "Apache-2.0",
-  "version": "0.1.0-alpha",
+  "version": "1.0.0",
   "authors": [
     {
       "name": "Joerg Kuetemeier",

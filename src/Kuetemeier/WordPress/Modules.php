@@ -92,22 +92,23 @@ final class Modules extends \Kuetemeier\Collection\PriorityHash {
         // create hash for faster lookup
         $modules_list = array_flip($modules_list);
         // iterate over all available modules in priority order
-        foreach($all_modules as $module_id => $prio) {
+        foreach($all_modules as $moduleID => $prio) {
             // and load php source, if it is in the $modules_list
-            if (isset($modules_list[$module_id])) {
+            if (isset($modules_list[$moduleID])) {
                 $srcdir = trailingslashit($this->config->get('plugin/modules/srcdir', trailingslashit($this->config->get('plugin/dir'), $this->config->get('pro/plugin/dir')).'src/Modules'));
 
+                $ucModuleID = ucfirst($moduleID);
                 //require_once $srcdir.'class-'.$module_id.'.php';
-                require_once $srcdir.$module_id.'.php';
+                require_once $srcdir.$ucModuleID.'.php';
 
                 //$class_name = $namespace.ucfirst($module_id);
-                $class_name = $namespace.ucfirst($module_id);
+                $class_name = $namespace.$ucModuleID;
 
                 $manifest = $class_name::manifest();
 
-                $this->config->set('_default/'.$module_id, $manifest['config'], true);
+                $this->config->set('_default/'.$moduleID, $manifest['config'], true);
 
-                $this->set($module_id, $prio, $class_name);
+                $this->set($moduleID, $prio, $class_name);
             }
         }
     }

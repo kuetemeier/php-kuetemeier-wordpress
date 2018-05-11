@@ -89,7 +89,7 @@ abstract class Plugin {
         $modules = new Modules($this->config);
 
         $modules->init();
-        $modules->init_module_classes();
+        $modules->initModuleClasses();
 
         $parent_config->set('pro/modules', $modules, true);
     }

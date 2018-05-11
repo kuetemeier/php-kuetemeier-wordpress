@@ -216,7 +216,7 @@ class Page extends SettingsBase {
 
                         <p class="submit">
                             <input name="<?php esc_attr_e($dbKey) ?>[submit|<?php esc_attr_e( $page ); ?>|<?php echo esc_attr( $tabID ); ?>]" type="submit" class="button-primary" value="<?php esc_attr_e($saveButtonText); ?>" />
-                            <input name="<?php esc_attr_e($dbKey) ?>[reset|<?php esc_attr_e( $page ); ?>|<?php esc_attr_e( $tabID ); ?>]" type="submit" class="button-secondary" value="<?php esc_attr_e($resetButtonText); ?>" />
+                            <?php /*<input name="<?php esc_attr_e($dbKey) ?>[reset|<?php esc_attr_e( $page ); ?>|<?php esc_attr_e( $tabID ); ?>]" type="submit" class="button-secondary" value="<?php esc_attr_e($resetButtonText); ?>" /> */ ?>
                         </p>
                         <?php
                     }

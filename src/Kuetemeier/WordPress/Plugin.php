@@ -69,7 +69,7 @@ abstract class Plugin {
         $this->config->set('_pluginInstance', $this, true);
 
         // pro plugin?
-        if ($this->proVersionAvailable()) {
+        if ($this->isProPlugin()) {
             add_action($this->config->get('_plugin/parent').'-Plugin-Loaded', array(&$this, 'callback__ParentLoaded'));
         } else {
             add_action('plugins_loaded', array(&$this, 'callback__PluginsLoaded'));
@@ -87,6 +87,7 @@ abstract class Plugin {
         $modules->initModuleClasses();
 
         $parent_config->set('_pro/modules', $modules, true);
+        $parent_config->set('_pro/pluginInstance', $this, true);
     }
 
 
@@ -182,9 +183,24 @@ abstract class Plugin {
     }
 
 
-    public function proVersionAvailable()
+    /**
+     * Is this instance a Pro Plugin?
+     */
+    public function isProPlugin()
     {
         return $this->config->get('_plugin/version/pro', false);
+    }
+
+
+    public function proVersionAvailable()
+    {
+        return $this->config->has('_pro/pluginInstance', false);
+    }
+
+
+    public function getProVersionInstance()
+    {
+        return $this->config->get('_pro/pluginInstance', false);
     }
 
 

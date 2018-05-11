@@ -46,63 +46,61 @@ abstract class Plugin {
 	 *
 	 * @since 0.1.0
 	 */
-	public function __construct( $config = array() ) {
-		//$memory_before = memory_get_usage();
-		//$start = microtime(true);
+    public function __construct($config = array())
+    {
+        $this->config = (is_array($config)) ? new Config($config) : $config;
 
-        $this->config = ( is_array($config) ) ? new Config($config) : $config;
-
-        if (!$this->config->has('plugin/id')) {
-            wp_die('ERROR Missing "plugin/id" configuration for Plugin');
+        if (!$this->config->has('_plugin/id')) {
+            wp_die('ERROR Missing "_plugin/id" configuration for Plugin');
         }
 
-		if (!$this->config->has('plugin/version/this')) {
-			wp_die('Missing "plugin/version/this" configuration for Plugin');
+		if (!$this->config->has('_plugin/version/this')) {
+			wp_die('Missing "_plugin/version/this" configuration for Plugin');
 		}
 
-		if (!$this->config->has('plugin/version/stable')) {
-			wp_die('Missing "plugin/version/stable" configuration for Plugin');
+		if (!$this->config->has('_plugin/version/stable')) {
+			wp_die('Missing "_plugin/version/stable" configuration for Plugin');
 		}
 
-		if (!$this->config->has('plugin/options/key')) {
-			wp_die('Missing "plugin/options/key" configuration for Plugin');
+		if (!$this->config->has('_plugin/options/key')) {
+			wp_die('Missing "_plugin/options/key" configuration for Plugin');
 		}
 
-        $this->config->set('_/plugin', $this, true);
+        $this->config->set('_pluginInstance', $this, true);
 
         // pro plugin?
-        if ($this->config->get('plugin/version/pro', false)) {
-
-            add_action($this->config->get('plugin/parent').'-Plugin-Loaded', array(&$this, 'callback__ParentLoaded'));
-
-
+        if ($this->proVersionAvailable()) {
+            add_action($this->config->get('_plugin/parent').'-Plugin-Loaded', array(&$this, 'callback__ParentLoaded'));
         } else {
-            add_action('plugins_loaded', array(&$this, 'callback__plugins_loaded'));
+            add_action('plugins_loaded', array(&$this, 'callback__PluginsLoaded'));
         }
     }
 
 
-    public function callback__ParentLoaded($parent_config) {
-
-        $this->config->set('parent', $parent_config, true);
+    public function callback__ParentLoaded($parent_config)
+    {
+        $this->config->set('_parent', $parent_config, true);
 
         $modules = new Modules($this->config);
 
         $modules->init();
         $modules->initModuleClasses();
 
-        $parent_config->set('pro/modules', $modules, true);
+        $parent_config->set('_pro/modules', $modules, true);
     }
 
-    public function callback__plugins_loaded() {
+
+    public function callback__PluginsLoaded() {
         $this->config->getOptionsFromDB();
 
-        do_action($this->config->get('plugin/id').'-Plugin-Loaded', $this->config);
+        do_action($this->config->get('_plugin/id').'-Plugin-Loaded', $this->config);
 
         $this->initModules();
     }
 
-    protected function initModules() {
+
+    protected function initModules()
+    {
         $modules = new Modules($this->config);
 
         $modules->init();
@@ -112,8 +110,8 @@ abstract class Plugin {
 
         $this->config->init();
 
-        $pro = $this->config->has('pro');
-        $proModules = $this->config->get('pro/modules');
+        $pro = $this->config->has('_pro');
+        $proModules = $this->config->get('_pro/modules');
 
         $modules->foreachCommonInit();
         if ($pro) {
@@ -134,12 +132,6 @@ abstract class Plugin {
                 $proModules->foreachFrontendInit();
             }
         }
-
-        //$memory_after = memory_get_usage();
-        //$time_elapsed_secs = microtime(true) - $start;
-
-        //$this->config->set('plugin/memory_usage', $memory_after - $memory_before, true);
-        //$this->config->set('plugin/time_elapsed', $time_elapsed_secs, true);
     }
 
 
@@ -150,8 +142,9 @@ abstract class Plugin {
 	 *
 	 * @since 0.1.0
 	 */
-	public function __clone() {
-		_doing_it_wrong( __FUNCTION__, esc_html__( 'Don\'t clone me!', 'kuetemeier-essentials' ), esc_attr( $this->version() ) );
+    public function __clone()
+    {
+		_doing_it_wrong(__FUNCTION__, esc_html__('Don\'t clone me!', 'kuetemeier-essentials' ), esc_attr($this->version()));
 	}
 
 
@@ -162,8 +155,9 @@ abstract class Plugin {
 	 *
 	 * @since 0.1.0
 	 */
-	public function __wakeup() {
-		_doing_it_wrong( __FUNCTION__, esc_html__( 'No wake up please!', 'kuetemeier-essentials' ), esc_attr( $this->version() ) );
+    public function __wakeup()
+    {
+		_doing_it_wrong(__FUNCTION__, esc_html__('No wake up please!', 'kuetemeier-essentials'), esc_attr($this->version()));
 	}
 
 
@@ -176,20 +170,32 @@ abstract class Plugin {
 	 *
 	 * @since 0.1.11
 	 */
-	public function is_stable_version() {
-		return ( version_compare( $this->config->get('plugin/version/this'), $this->config->get('plugin/version/stable') ) === 0 );
+    public function isStableVersion()
+    {
+		return (version_compare($this->config->get('_plugin/version/this'), $this->config->get('_plugin/version/stable')) === 0);
 	}
 
-	public function getVersion() {
-		return $this->config->get('plugin/version/this');
+
+    public function getVersion()
+    {
+		return $this->config->get('_plugin/version/this');
     }
 
-    public function getID() {
-        return $this->config->get('plugin/id');
+
+    public function proVersionAvailable()
+    {
+        return $this->config->get('_plugin/version/pro', false);
     }
 
-    public function getModules() {
+
+    public function getID()
+    {
+        return $this->config->get('_plugin/id');
+    }
+
+
+    public function getModules()
+    {
         return $this->config->get('_modules');
     }
-
 }

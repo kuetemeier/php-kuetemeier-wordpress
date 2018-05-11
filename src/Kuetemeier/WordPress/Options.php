@@ -53,10 +53,11 @@ final class Options extends \Kuetemeier\Collection\Collection {
 
     private $currentPage = '';
 
+
     public function __construct($config)
     {
         $this->config = $config;
-        $config->set('_/options', $this, true);
+        $config->set('_optionsInstance', $this, true);
 
         foreach(self::OPTIONTYPES as $type => $value) {
             $this->set($type, new \Kuetemeier\Collection\PriorityHash());
@@ -66,9 +67,10 @@ final class Options extends \Kuetemeier\Collection\Collection {
 
         $this->currentPage = ( isset( $_GET['page'] ) ? sanitize_key( $_GET['page'] ) : '' );
 
-		add_action( 'admin_init', array( &$this, 'callback__admin_init' ) );
-		add_action( 'admin_menu', array( &$this, 'callback__admin_menu' ) );
+		add_action('admin_init', array(&$this, 'callback__admin_init'));
+		add_action('admin_menu', array(&$this, 'callback__admin_menu'));
     }
+
 
     public function registerAdminOptions($adminOptions, $manifest)
     {
@@ -80,7 +82,7 @@ final class Options extends \Kuetemeier\Collection\Collection {
             if (isset($adminOptions[$type])) {
                 foreach($adminOptions[$type] as $config) {
                     $config['config'] = $this->config;
-                    $config['_/options'] = $this;
+                    $config['_optionsInstance'] = $this;
 
                     // create an object with the matching Option class for every config entry
                     $item = new $class($config);
@@ -119,7 +121,7 @@ final class Options extends \Kuetemeier\Collection\Collection {
                     }
                 }
 
-                $config['_/options'] = $this;
+                $config['_optionsInstance'] = $this;
 
                 if (isset($config['type'])) {
                     $class = '\Kuetemeier\WordPress\Settings\Options\\'.trim($config['type']);
@@ -161,11 +163,7 @@ final class Options extends \Kuetemeier\Collection\Collection {
 	 */
     public function callback__admin_init()
     {
-
-//		foreach ( $this->admin_subpages as $subpage ) {
-//			register_setting( $subpage['slug'], $this->get_wp_plugin()->get_db_option_table_base_key(), $subpage['callback__validate_options'] );
-//		}
-
+        // intentionally left blank
 	}
 
 
@@ -181,7 +179,6 @@ final class Options extends \Kuetemeier\Collection\Collection {
 	 */
     public function callback__admin_menu()
     {
-
         // iterate over all item types
         foreach(self::OPTIONTYPES as $type => $class) {
             $this->get($type)->foreachWithArgs(
@@ -203,17 +200,21 @@ final class Options extends \Kuetemeier\Collection\Collection {
         }
     }
 
-    public function getTab($tab, $default=null) {
+
+    public function getTab($tab, $default=null)
+    {
         return $this->get('tabs')->get($tab, $default);
     }
 
 
-    public function getSection($section, $default=null) {
+    public function getSection($section, $default=null)
+    {
         return $this->get('sections')->get($section, $default);
     }
 
 
-    public function getCurrentTab() {
+    public function getCurrentTab()
+    {
         if ($this->get('pages')->has($this->getCurrentPage())) {
             return $this->getPage($this->getCurrentPage())->getCurrentTab();
         } else {
@@ -221,17 +222,24 @@ final class Options extends \Kuetemeier\Collection\Collection {
         }
     }
 
-    public function getCurrentPage() {
+
+    public function getCurrentPage()
+    {
         return $this->currentPage;
     }
 
-    public function getDBKey() {
-        return $this->config->get('plugin/options/key');
+
+    public function getDBKey()
+    {
+        return $this->config->get('_plugin/options/key');
     }
 
-    public function getSettingsOptionTypes() {
+
+    public function getSettingsOptionTypes()
+    {
         return self::SETTINGSOPTIONTYPES;
     }
+
 
     public function validateOptions($input)
     {
@@ -244,7 +252,6 @@ final class Options extends \Kuetemeier\Collection\Collection {
         // for enhanced security, create a new empty array
         //$validInput = array();
         $validInput = $this->config->getAllOptions();
-
 
         $submitID = '';
 		$pageID = '';
@@ -274,10 +281,7 @@ final class Options extends \Kuetemeier\Collection\Collection {
         }
 
         $page = $this->getPage($pageID);
-
         $validInput = $page->validateOptions($input, $validInput, $tabID);;
-
         return $validInput; // return validated input
     }
-
 }

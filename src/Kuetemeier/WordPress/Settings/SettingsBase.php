@@ -260,12 +260,12 @@ class SettingsBase extends \Kuetemeier\Collection\Collection {
 
     public function getPlugin()
     {
-        return $this->get('config')->get('_/plugin');
+        return $this->get('config')->get('_pluginInstance');
     }
 
     public function getPluginOptions()
     {
-        return $this->get('config')->get('_/options');
+        return $this->get('config')->get('_optionsInstance');
     }
 
     public function getPluginModules()

@@ -40,30 +40,36 @@ abstract class PluginModule {
 
     abstract public static function manifest();
 
+
     public function __construct($config)
     {
         $this->config = $config;
     }
+
 
     public function commonInit()
     {
         return; // placeholder
     }
 
+
     public function adminInit($options)
     {
         $options->registerAdminOptions($this->getAdminOptionSettings(), $this->manifest());
     }
+
 
     public function getAdminOptionSettings()
     {
         return array(); // placeholder
     }
 
+
     public function frontendInit()
     {
         return; // placeholder
     }
+
 
     /**
      * Shortcut for Modules, so they don't have to hardcode their ID on options requests.
@@ -77,5 +83,4 @@ abstract class PluginModule {
         }
         return $this->config->getOption($key, $module, $default);
     }
-
 }

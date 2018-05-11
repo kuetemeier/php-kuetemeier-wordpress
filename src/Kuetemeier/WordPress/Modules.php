@@ -49,7 +49,8 @@ final class Modules extends \Kuetemeier\Collection\PriorityHash {
      *
      * @param Config $config Reference to the plugin configuartion.
      */
-    public function __construct($config) {
+    public function __construct($config)
+    {
         $this->config = $config;
     }
 
@@ -63,7 +64,8 @@ final class Modules extends \Kuetemeier\Collection\PriorityHash {
      *
      * @param string[] $modules_list Array with module IDs to be loaded.
      */
-    private function loadSources($modules_list = array()) {
+    private function loadSources($modules_list = array())
+    {
         // prevent a second call of this function
         if (!empty($this->elements)) {
             wp_die("Modules::load_sources: ERROR - Elements of Modules are not empty. Do you try to load_sources twice?");
@@ -75,7 +77,7 @@ final class Modules extends \Kuetemeier\Collection\PriorityHash {
         }
 
         // get all available modules
-        $all_modules = $this->config->get('plugin/modules/available', array());
+        $all_modules = $this->config->get('_plugin/modules/available', array());
 
         if (empty($all_modules)) {
             return;
@@ -87,15 +89,16 @@ final class Modules extends \Kuetemeier\Collection\PriorityHash {
         });
 
         // prepare module namespace
-        $namespace = '\\'.$this->config->get('plugin/modules/namespace', $this->config->get('pro/plugin/modules/namespace')).'\\';
+        $namespace = '\\'.$this->config->get('_plugin/modules/namespace', $this->config->get('_pro/plugin/modules/namespace')).'\\';
 
         // create hash for faster lookup
         $modules_list = array_flip($modules_list);
         // iterate over all available modules in priority order
         foreach($all_modules as $moduleID => $prio) {
+
             // and load php source, if it is in the $modules_list
             if (isset($modules_list[$moduleID])) {
-                $srcdir = trailingslashit($this->config->get('plugin/modules/srcdir', trailingslashit($this->config->get('plugin/dir'), $this->config->get('pro/plugin/dir')).'src/Modules'));
+                $srcdir = trailingslashit($this->config->get('_plugin/modules/srcdir', trailingslashit($this->config->get('_plugin/dir'), $this->config->get('_pro/plugin/dir')).'src/Modules'));
 
                 $ucModuleID = ucfirst($moduleID);
                 //require_once $srcdir.'class-'.$module_id.'.php';
@@ -113,15 +116,16 @@ final class Modules extends \Kuetemeier\Collection\PriorityHash {
         }
     }
 
-    public function init() {
-
+    public function init()
+    {
         // get all modules that come with this plugin (default: none - empty array)
-        $all_modules     = array_keys($this->config->get('plugin/modules/available', array()));
-        $default_enabled = $this->config->get('plugin/modules/default-enabled', array());
-        $always_enabled  = $this->config->get('plugin/modules/always-enabled', array());
+        $all_modules     = array_keys($this->config->get('_plugin/modules/available', array()));
+        $default_enabled = $this->config->get('_plugin/modules/default-enabled', array());
+        $always_enabled  = $this->config->get('_plugin/modules/always-enabled', array());
 
         // load only activated modules (with fallback to all) if this is a frontend call
-        $modules_list = (is_admin()) ? $all_modules : $this->config->get('options/modules/enabled', $default_enabled);
+        //$modules_list = (is_admin()) ? $all_modules : $this->config->get('_/options/modules/enabled', $default_enabled);
+        $modules_list = $all_modules;
 
         $modules_list = array_unique($modules_list + $always_enabled);
 

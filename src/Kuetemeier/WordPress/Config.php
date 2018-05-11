@@ -40,8 +40,9 @@ final class Config extends \Kuetemeier\Collection\Collection {
         parent::__construct($initValues);
     }
 
+
     public function getOptionsFromDB() {
-        $db_key = $this->get('plugin/options/key');
+        $db_key = $this->get('_plugin/options/key');
         $this->set('_db-options', get_option($db_key));
     }
 
@@ -51,12 +52,14 @@ final class Config extends \Kuetemeier\Collection\Collection {
         return $this->get('_db-options');
     }
 
-    public function init() {
+
+    public function init()
+    {
         // test if options exists in DB, if not, create new ones from defaults
         if ($this->get('_db-options') === false) {
-            $this->set('_default/version', $this->get('plugin/version/this'), 1);
+            $this->set('_default/version', $this->get('_plugin/version/this'), 1);
             update_option(
-                $this->get('plugin/options/key'), //key
+                $this->get('_plugin/options/key'), //key
                 $this->get('_default'), // value
                 1 // autoload
             );
@@ -72,7 +75,7 @@ final class Config extends \Kuetemeier\Collection\Collection {
 
             if ($newValues) {
                 update_option(
-                    $this->get('plugin/options/key'),
+                    $this->get('_plugin/options/key'),
                     $this->get('_db-options'),
                     1
                 );
@@ -82,12 +85,15 @@ final class Config extends \Kuetemeier\Collection\Collection {
         // TODO: Check for versions and different fields
     }
 
-    public function getPlugin() {
-        return $this->get('_/plugin');
+
+    public function getPlugin()
+    {
+        return $this->get('_pluginInstance');
     }
 
 
-    public function getDefault($key, $module='', $default=null) {
+    public function getDefault($key, $module='', $default=null)
+    {
         if (empty($key)) {
             return $default;
         }
@@ -99,7 +105,8 @@ final class Config extends \Kuetemeier\Collection\Collection {
     }
 
 
-    public function getOption($key, $module='', $default=null) {
+    public function getOption($key, $module='', $default=null)
+    {
         if (empty($key)) {
             return $default;
         }

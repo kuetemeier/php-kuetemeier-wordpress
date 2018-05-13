@@ -1,15 +1,13 @@
 <?php
+
 /**
- * Vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4:
+ * Kuetemeier WordPress Plugin - Setting - Tab
  *
- * @package    kuetemeier-essentials
- * @author     Jörg Kütemeier (https://kuetemeier.de/kontakt)
- * @license    GNU General Public License 3
- * @link       https://kuetemeier.de
- * @copyright  2018 Jörg Kütemeier
- *
- *
- * Copyright 2018 Jörg Kütemeier (https://kuetemeier.de/kontakt)
+ * @package   kuetemeier-essentials
+ * @author    Jörg Kütemeier (https://kuetemeier.de/kontakt)
+ * @license   GNU General Public License 3
+ * @link      https://kuetemeier.de
+ * @copyright 2018 Jörg Kütemeier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,16 +25,14 @@
 
 namespace Kuetemeier\WordPress\Settings;
 
-/*********************************
- * KEEP THIS for security reasons
- * blocking direct access to our plugin PHP files by checking for the ABSPATH constant
- */
-defined( 'ABSPATH' ) || die( 'No direct call!' );
+// KEEP THIS for security reasons - blocking direct access to the PHP files by checking for the ABSPATH constant.
+defined('ABSPATH') || die('No direct call!');
 
 /**
  * You can register Sections to a Tab.
  */
-class Tab extends SettingsBase{
+class Tab extends SettingsBase
+{
 
     public function __construct($pageConfig)
     {
@@ -45,21 +41,23 @@ class Tab extends SettingsBase{
         $this->registerMeOn(SettingsBase::TPAGE);
     }
 
+
     public function adminInitFromPage($page)
     {
         $registeredSections = $this->getRegisteredSections();
-        foreach($registeredSections->keys() as $key) {
+        foreach ($registeredSections->keys() as $key) {
             $section = $registeredSections->get($key);
             $section->adminInitFromTab($page, $this);
         }
     }
+
 
     public function register($type, $item)
     {
         if ($type === SettingsBase::RSECTION) {
             parent::register($type, $item);
         } else {
-            $this->wp_die_error('You can only register Sections to a Tab. You tried Type: "'.esc_html($type).'" for ID:"'.esc_html($item->getID()).'".');
+            $this->wp_die_error('You can only register Sections to a Tab. You tried Type: "' . esc_html($type) . '" for ID:"' . esc_html($item->getID()) . '".');
         }
     }
 
@@ -68,14 +66,14 @@ class Tab extends SettingsBase{
     {
         $registeredOptions = $this->getRegisteredOptions();
 
-        foreach($registeredOptions->keys() as $key) {
+        foreach ($registeredOptions->keys() as $key) {
             $option = $registeredOptions->get($key);
             $validInput = $option->validateOptions($input, $validInput);
         }
 
         $registeredSections = $this->getRegisteredSections();
 
-        foreach($registeredSections->keys() as $key) {
+        foreach ($registeredSections->keys() as $key) {
             $section = $registeredSections->get($key);
             $validInput = $section->validateOptions($input, $validInput);
         }

@@ -1,15 +1,13 @@
 <?php
+
 /**
- * Vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4:
+ * Kuetemeier WordPress Plugin - PluginModule
  *
- * @package    kuetemeier-essentials
- * @author     Jörg Kütemeier (https://kuetemeier.de/kontakt)
- * @license    GNU General Public License 3
- * @link       https://kuetemeier.de
- * @copyright  2018 Jörg Kütemeier
- *
- *
- * Copyright 2018 Jörg Kütemeier (https://kuetemeier.de/kontakt)
+ * @package   kuetemeier-essentials
+ * @author    Jörg Kütemeier (https://kuetemeier.de/kontakt)
+ * @license   GNU General Public License 3
+ * @link      https://kuetemeier.de
+ * @copyright 2018 Jörg Kütemeier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,16 +25,15 @@
 
 namespace Kuetemeier\WordPress;
 
-/*********************************
- * KEEP THIS for security reasons
- * blocking direct access to our plugin PHP files by checking for the ABSPATH constant
- */
-defined( 'ABSPATH' ) || die( 'No direct call!' );
+// KEEP THIS for security reasons - blocking direct access to the PHP files by checking for the ABSPATH constant.
+defined('ABSPATH') || die('No direct call!');
 
 
-abstract class PluginModule {
+abstract class PluginModule
+{
 
     protected $config;
+
 
     abstract public static function manifest();
 
@@ -76,7 +73,7 @@ abstract class PluginModule {
      *
      * @see Config::getOption
      */
-    public function getOption($key, $module='', $default=null)
+    public function getOption($key, $module = '', $default = null)
     {
         if (empty($module)) {
             $module = $this->manifest()['id'];

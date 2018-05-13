@@ -1,15 +1,13 @@
 <?php
+
 /**
- * Vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4:
+ * Kuetemeier WordPress Plugin - Options
  *
- * @package    kuetemeier-essentials
- * @author     Jörg Kütemeier (https://kuetemeier.de/kontakt)
- * @license    GNU General Public License 3
- * @link       https://kuetemeier.de
- * @copyright  2018 Jörg Kütemeier
- *
- *
- * Copyright 2018 Jörg Kütemeier (https://kuetemeier.de/kontakt)
+ * @package   kuetemeier-essentials
+ * @author    Jörg Kütemeier (https://kuetemeier.de/kontakt)
+ * @license   GNU General Public License 3
+ * @link      https://kuetemeier.de
+ * @copyright 2018 Jörg Kütemeier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,14 +25,12 @@
 
 namespace Kuetemeier\WordPress;
 
-/*********************************
- * KEEP THIS for security reasons
- * blocking direct access to our plugin PHP files by checking for the ABSPATH constant
- */
-defined( 'ABSPATH' ) || die( 'No direct call!' );
+// KEEP THIS for security reasons - blocking direct access to the PHP files by checking for the ABSPATH constant.
+defined('ABSPATH') || die('No direct call!');
 
 
-final class Options extends \Kuetemeier\Collection\Collection {
+final class Options extends \Kuetemeier\Collection\Collection
+{
 
     const OPTIONTYPES = array(
         'pages' => '\Kuetemeier\WordPress\Settings\Page',
@@ -59,16 +55,16 @@ final class Options extends \Kuetemeier\Collection\Collection {
         $this->config = $config;
         $config->set('_optionsInstance', $this, true);
 
-        foreach(self::OPTIONTYPES as $type => $value) {
+        foreach (self::OPTIONTYPES as $type => $value) {
             $this->set($type, new \Kuetemeier\Collection\PriorityHash());
         }
         // options are "special" because of their subclasses
         $this->set('options', new \Kuetemeier\Collection\PriorityHash());
 
-        $this->currentPage = ( isset( $_GET['page'] ) ? sanitize_key( $_GET['page'] ) : '' );
+        $this->currentPage = (isset($_GET['page']) ? sanitize_key($_GET['page']) : '');
 
-		add_action('admin_init', array(&$this, 'callback__admin_init'));
-		add_action('admin_menu', array(&$this, 'callback__admin_menu'));
+        add_action('admin_init', array(&$this, 'callbackAdminInit'));
+        add_action('admin_menu', array(&$this, 'callbackAdminMenu'));
     }
 
 
@@ -76,11 +72,10 @@ final class Options extends \Kuetemeier\Collection\Collection {
     {
 
         // iterate over all config options
-        foreach(self::OPTIONTYPES as $type => $class) {
-
+        foreach (self::OPTIONTYPES as $type => $class) {
             // do we have some config for this type?
             if (isset($adminOptions[$type])) {
-                foreach($adminOptions[$type] as $config) {
+                foreach ($adminOptions[$type] as $config) {
                     $config['config'] = $this->config;
                     $config['_optionsInstance'] = $this;
 
@@ -89,7 +84,7 @@ final class Options extends \Kuetemeier\Collection\Collection {
 
                     // check, that we do not overwrite an option, that we already have a config for (programming error?)
                     if ($this->get($type)->has($item->get('id'))) {
-                        wp_die('ERROR - Options: '.$class.' with id "'.$item->get('id').'" already exists');
+                        wp_die('ERROR - Options: ' . $class . ' with id "' . $item->get('id') . '" already exists');
                     }
                     // store the new option
                     $this->get($type)->set($item->get('id'), $item->get('priority', 100), $item);
@@ -98,7 +93,7 @@ final class Options extends \Kuetemeier\Collection\Collection {
         }
 
         if (isset($adminOptions['options'])) {
-            foreach($adminOptions['options'] as $config) {
+            foreach ($adminOptions['options'] as $config) {
                 $config['config'] = $this->config;
 
                 // set option parameter 'module' as a default to the module 'id' (from it's manifest),
@@ -115,7 +110,7 @@ final class Options extends \Kuetemeier\Collection\Collection {
                     'description' => ''
                 );
 
-                foreach($defaults as $key => $value) {
+                foreach ($defaults as $key => $value) {
                     if (!isset($config[$key])) {
                         $config[$key] = $value;
                     }
@@ -124,11 +119,11 @@ final class Options extends \Kuetemeier\Collection\Collection {
                 $config['_optionsInstance'] = $this;
 
                 if (isset($config['type'])) {
-                    $class = '\Kuetemeier\WordPress\Settings\Options\\'.trim($config['type']);
+                    $class = '\Kuetemeier\WordPress\Settings\Options\\' . trim($config['type']);
                 } elseif (isset($config['class'])) {
                     $class = $config['class'];
                 } else {
-                    wp_die('ERROR - Options: no "class" or "type" for option "'.esc_html($config['id']).'" found.');
+                    wp_die('ERROR - Options: no "class" or "type" for option "' . esc_html($config['id']) . '" found.');
                 }
 
                 $item = '';
@@ -142,7 +137,7 @@ final class Options extends \Kuetemeier\Collection\Collection {
 
                 // check, that we do not overwrite an option, that we already have a config for (programming error?)
                 if ($this->get('options')->has($item->get('id'))) {
-                    wp_die('ERROR - Options: '.$class.' with id "'.$item->get('id').'" already exists');
+                    wp_die('ERROR - Options: ' . $class . ' with id "' . $item->get('id') . '" already exists');
                 }
                 // store the new option
                 $this->get('options')->set($item->get('id'), $item->get('priority', 100), $item);
@@ -151,44 +146,44 @@ final class Options extends \Kuetemeier\Collection\Collection {
     }
 
 
-	/**
-	 * Callback for WP admin_init. Registeres WP settings for the WP Settings API.
-	 *
-	 * WARNING: This is a callback. Never call it directly!
-	 * This method has to be public, so WordPress can see and call it.
-	 *
-	 * @return void
-	 *
-	 * @since 0.1.0
-	 */
-    public function callback__admin_init()
+    /**
+     * Callback for WP admin_init. Registeres WP settings for the WP Settings API.
+     *
+     * WARNING: This is a callback. Never call it directly!
+     * This method has to be public, so WordPress can see and call it.
+     *
+     * @return void
+     *
+     * @since 0.1.0
+     */
+    public function callbackAdminInit()
     {
         // intentionally left blank
-	}
+    }
 
 
-	/**
-	 * Callback for WP admin_menu. Registeres the admin menu with the WP Settings API.
-	 *
-	 * WARNING: This is a callback. Never call it directly!
-	 * This method has to be public, so WordPress can see and call it.
-	 *
-	 * @return void
-	 *
-	 * @since 0.1.0
-	 */
-    public function callback__admin_menu()
+    /**
+     * Callback for WP admin_menu. Registeres the admin menu with the WP Settings API.
+     *
+     * WARNING: This is a callback. Never call it directly!
+     * This method has to be public, so WordPress can see and call it.
+     *
+     * @return void
+     *
+     * @since 0.1.0
+     */
+    public function callbackAdminMenu()
     {
         // iterate over all item types
-        foreach(self::OPTIONTYPES as $type => $class) {
+        foreach (self::OPTIONTYPES as $type => $class) {
             $this->get($type)->foreachWithArgs(
-                function($key, $item, $config){
-                    $item->callback__admin_menu($config);
+                function ($key, $item, $config) {
+                    $item->callbackAdminMenu($config);
                 },
                 $this->config
             );
         }
-	}
+    }
 
 
     public function getPage($id, $noSubPages = false)
@@ -201,13 +196,13 @@ final class Options extends \Kuetemeier\Collection\Collection {
     }
 
 
-    public function getTab($tab, $default=null)
+    public function getTab($tab, $default = null)
     {
         return $this->get('tabs')->get($tab, $default);
     }
 
 
-    public function getSection($section, $default=null)
+    public function getSection($section, $default = null)
     {
         return $this->get('sections')->get($section, $default);
     }
@@ -244,7 +239,7 @@ final class Options extends \Kuetemeier\Collection\Collection {
     public function validateOptions($input)
     {
         // if we have no data, do nothing.
-        if(empty($input)) {
+        if (empty($input)) {
             //return array();
             return $this->config->getAllOptions();
         }
@@ -254,34 +249,34 @@ final class Options extends \Kuetemeier\Collection\Collection {
         $validInput = $this->config->getAllOptions();
 
         $submitID = '';
-		$pageID = '';
-		$tabID = '';
+        $pageID = '';
+        $tabID = '';
 
         // break up submit name for submit-type, page and tab
-		foreach ( array_keys( $input ) as $key ) {
-			if ((substr( $key, 0, 7 ) === 'submit|' ) || (substr( $key, 0, 6 ) === 'reset|')) {
-                $parts = explode( '|', $key );
-                $count = count( $parts );
+        foreach (array_keys($input) as $key) {
+            if ((substr($key, 0, 7) === 'submit|') || (substr($key, 0, 6) === 'reset|')) {
+                $parts = explode('|', $key);
+                $count = count($parts);
 
-                if ( $count > 0 ) {
+                if ($count > 0) {
                     $submit = $parts[0];
-                    if ( $count > 1 ) {
+                    if ($count > 1) {
                         $pageID = $parts[1];
                     }
-                    if ( $count > 2 ) {
+                    if ($count > 2) {
                         $tabID = $parts[2];
                     }
                     break;
                 }
             }
-		}
+        }
 
         if (empty($pageID)) {
             return array();
         }
 
         $page = $this->getPage($pageID);
-        $validInput = $page->validateOptions($input, $validInput, $tabID);;
+        $validInput = $page->validateOptions($input, $validInput, $tabID);
         return $validInput; // return validated input
     }
 }

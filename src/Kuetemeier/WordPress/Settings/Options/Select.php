@@ -1,15 +1,13 @@
 <?php
+
 /**
- * Vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4:
+ * Kuetemeier WordPress Plugin - Setting - Option - Select
  *
- * @package    kuetemeier-essentials
- * @author     Jörg Kütemeier (https://kuetemeier.de/kontakt)
- * @license    GNU General Public License 3
- * @link       https://kuetemeier.de
- * @copyright  2018 Jörg Kütemeier
- *
- *
- * Copyright 2018 Jörg Kütemeier (https://kuetemeier.de/kontakt)
+ * @package   kuetemeier-essentials
+ * @author    Jörg Kütemeier (https://kuetemeier.de/kontakt)
+ * @license   GNU General Public License 3
+ * @link      https://kuetemeier.de
+ * @copyright 2018 Jörg Kütemeier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,59 +25,59 @@
 
 namespace Kuetemeier\WordPress\Settings\Options;
 
-/*********************************
- * KEEP THIS for security reasons
- * blocking direct access to our plugin PHP files by checking for the ABSPATH constant
- */
-defined( 'ABSPATH' ) || die( 'No direct call!' );
+// KEEP THIS for security reasons - blocking direct access to the PHP files by checking for the ABSPATH constant.
+defined('ABSPATH') || die('No direct call!');
 
 
-class Select extends \Kuetemeier\WordPress\Settings\Option {
+class Select extends \Kuetemeier\WordPress\Settings\Option
+{
 
 
     public function defaultDisplay($args)
     {
-		// Get current value.
-		$value = $this->getValue();
+        // Get current value.
+        $value = $this->getValue();
 
-		// Assemble a compound and escaped id string.
-		$escID = esc_attr($this->getID());
-		// Assemble an escaped name string. The name attribute is importan, it defines the keys for the $input array in validation.
-        $escName = esc_attr($this->getDBKey().'['.$this->getModule() . '][' . $this->getID() . ']' );
+        // Assemble a compound and escaped id string.
+        $escID = esc_attr($this->getID());
+        // Assemble an escaped name string. The name attribute is importan, it defines the keys for the $input array in validation.
+        $escName = esc_attr($this->getDBKey() . '[' . $this->getModule() . '][' . $this->getID() . ']');
 
         $class = $this->get('class', '');
 
-		// Compose output.
-        $escHtml = '<select id="' . $escID . '" name="' . $escName . '" class="'.esc_attr($class).'" />';
-        foreach($this->get('values') as $key => $v) {
-            $escHtml .= '<option value="'.esc_attr($key).'"';
+        // Compose output.
+        $escHtml = '<select id="' . $escID . '" name="' . $escName . '" class="' . esc_attr($class) . '" />';
+        foreach ($this->get('values') as $key => $v) {
+            $escHtml .= '<option value="' . esc_attr($key) . '"';
             if ($key === $value) {
                 $escHtml .= ' selected';
             }
-            $escHtml .= '>'.esc_html($v).'</option>';
+            $escHtml .= '>' . esc_html($v) . '</option>';
         }
         $escHtml .= '</select>';
-		$escHtml .= $this->getHTMLDisplayLabelFor($escID);
-		$escHtml .= $this->getHTMLDescription($escID);
+        $escHtml .= $this->getHTMLDisplayLabelFor($escID);
+        $escHtml .= $this->getHTMLDescription($escID);
 
 		// phpcs:disable WordPress.XSS.EscapeOutput
-		// $esc_html contains only escaped content.
-		echo $escHtml;
+        // $esc_html contains only escaped content.
+        echo $escHtml;
 		// phpcs:enable WordPress.XSS.EscapeOutput
     }
 
-	/**
-	 * Sanitize the input value for a Checkbox value.
-	 *
-	 * Valid values for Checkboxes are 0 and 1
-	 *
-	 * @param string $input An input vlalue.
-	 *
-	 * @return int A clean and sanitized version or the 'empty' value, if it cannot be sanitized.
-	 *
-	 * @since 0.1.12 Does real sanitization.
-	 */
-	public function sanitize($input) {
+
+    /**
+     * Sanitize the input value for a Checkbox value.
+     *
+     * Valid values for Checkboxes are 0 and 1
+     *
+     * @param string $input An input vlalue.
+     *
+     * @return int A clean and sanitized version or the 'empty' value, if it cannot be sanitized.
+     *
+     * @since 0.1.12 Does real sanitization.
+     */
+    public function sanitize($input)
+    {
         // pre sanitize, just for the case...
         $selected = $this->sanitizeText($input, false);
 
@@ -96,5 +94,4 @@ class Select extends \Kuetemeier\WordPress\Settings\Option {
     {
         return '';
     }
-
 }

@@ -1,15 +1,13 @@
 <?php
+
 /**
- * Vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4:
+ * Kuetemeier WordPress Plugin - Setting - Option - Number
  *
- * @package    kuetemeier-essentials
- * @author     Jörg Kütemeier (https://kuetemeier.de/kontakt)
- * @license    GNU General Public License 3
- * @link       https://kuetemeier.de
- * @copyright  2018 Jörg Kütemeier
- *
- *
- * Copyright 2018 Jörg Kütemeier (https://kuetemeier.de/kontakt)
+ * @package   kuetemeier-essentials
+ * @author    Jörg Kütemeier (https://kuetemeier.de/kontakt)
+ * @license   GNU General Public License 3
+ * @link      https://kuetemeier.de
+ * @copyright 2018 Jörg Kütemeier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,14 +25,12 @@
 
 namespace Kuetemeier\WordPress\Settings\Options;
 
-/*********************************
- * KEEP THIS for security reasons
- * blocking direct access to our plugin PHP files by checking for the ABSPATH constant
- */
-defined( 'ABSPATH' ) || die( 'No direct call!' );
+// KEEP THIS for security reasons - blocking direct access to the PHP files by checking for the ABSPATH constant.
+defined('ABSPATH') || die('No direct call!');
 
 
-class Number extends \Kuetemeier\WordPress\Settings\Option {
+class Number extends \Kuetemeier\WordPress\Settings\Option
+{
 
 
     public function defaultDisplay($args)
@@ -42,19 +38,21 @@ class Number extends \Kuetemeier\WordPress\Settings\Option {
         $this->displayInput('number', 'regular-text ltr code');
     }
 
-	/**
-	 * Sanitize the input value for a Checkbox value.
-	 *
-	 * Valid values for Checkboxes are 0 and 1
-	 *
-	 * @param string $input An input vlalue.
-	 *
-	 * @return int A clean and sanitized version or the 'empty' value, if it cannot be sanitized.
-	 *
-	 * @since 0.1.12 Does real sanitization.
-	 */
-	public function sanitize($input) {
-        $value =  $this->sanitizeText($input, false);
+
+    /**
+     * Sanitize the input value for a Checkbox value.
+     *
+     * Valid values for Checkboxes are 0 and 1
+     *
+     * @param string $input An input vlalue.
+     *
+     * @return int A clean and sanitized version or the 'empty' value, if it cannot be sanitized.
+     *
+     * @since 0.1.12 Does real sanitization.
+     */
+    public function sanitize($input)
+    {
+        $value = $this->sanitizeText($input, false);
         if (is_numeric($value)) {
             return $value;
         } else {
@@ -62,9 +60,9 @@ class Number extends \Kuetemeier\WordPress\Settings\Option {
         }
     }
 
+
     public function getEmptyValue()
     {
         return '';
     }
-
 }

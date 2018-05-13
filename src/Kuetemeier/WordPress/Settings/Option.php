@@ -1,15 +1,13 @@
 <?php
+
 /**
- * Vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4:
+ * Kuetemeier WordPress Plugin - Setting - Option
  *
- * @package    kuetemeier-essentials
- * @author     Jörg Kütemeier (https://kuetemeier.de/kontakt)
- * @license    GNU General Public License 3
- * @link       https://kuetemeier.de
- * @copyright  2018 Jörg Kütemeier
- *
- *
- * Copyright 2018 Jörg Kütemeier (https://kuetemeier.de/kontakt)
+ * @package   kuetemeier-essentials
+ * @author    Jörg Kütemeier (https://kuetemeier.de/kontakt)
+ * @license   GNU General Public License 3
+ * @link      https://kuetemeier.de
+ * @copyright 2018 Jörg Kütemeier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,28 +25,25 @@
 
 namespace Kuetemeier\WordPress\Settings;
 
-/*********************************
- * KEEP THIS for security reasons
- * blocking direct access to our plugin PHP files by checking for the ABSPATH constant
- */
-defined( 'ABSPATH' ) || die( 'No direct call!' );
+// KEEP THIS for security reasons - blocking direct access to the PHP files by checking for the ABSPATH constant.
+defined('ABSPATH') || die('No direct call!');
 
 
 abstract class Option extends SettingsBase
 {
-	public function __construct($optionConfig) {
+    public function __construct($optionConfig)
+    {
         parent::__construct($optionConfig);
 
         $this->registerMeOn(array(SettingsBase::TPAGE, SettingsBase::TTAB, SettingsBase::TSECTION), true);
         $this->set('displayFunction', array(&$this, 'defaultDisplay'), 1);
-
     }
 
     public function adminInitFromSection($page, $section, $sectionID, $pageID)
     {
         if (!$this->usesCustomDesign()) {
             add_settings_field(
-                $sectionID.'-o-'.$this->getID(), // id
+                $sectionID . '-o-' . $this->getID(), // id
                 $this->getTitle(), // title
                 //array(&$this, 'defaultDisplay'), // display function
                 $this->get('displayFunction'),
@@ -78,49 +73,48 @@ abstract class Option extends SettingsBase
         return $this->get('config')->getDefault($this->getID(), $this->getModule());
     }
 
-	/**
-	 * Helper function for callbackk__display_setting, returns html for the label.
-	 *
-	 * @param string $composedID A composed id for the html id fields.
-	 *
-	 * @return string HTML or '', if label property is empty.
-	 *
-	 * @since 0.2.1
-	 */
+    /**
+     * Helper function for callbackk__display_setting, returns html for the label.
+     *
+     * @param string $composedID A composed id for the html id fields.
+     *
+     * @return string HTML or '', if label property is empty.
+     *
+     * @since 0.2.1
+     */
     protected function getHTMLDisplayLabelFor($composedID)
     {
 
         $label = $this->getLabel();
-		if (empty($label)) {
-			return '';
-		}
+        if (empty($label)) {
+            return '';
+        }
 
-		$escID = esc_attr( $composedID );
-		return '<label id="' . $escID . '-label" for="' . $escID . '"> ' . $this->getEscText($label) . '</label>';
-
+        $escID = esc_attr($composedID);
+        return '<label id="' . $escID . '-label" for="' . $escID . '"> ' . $this->getEscText($label) . '</label>';
     }
 
 
-	/**
-	 * Helper function for callbackk__display_setting, returns html for the description.
-	 *
-	 * @param string $composed_id A composed id for the html id fields.
-	 *
-	 * @return string HTML or '', if description property is empty.
-	 *
-	 * @since 0.2.1
-	 */
+    /**
+     * Helper function for callbackk__display_setting, returns html for the description.
+     *
+     * @param string $composed_id A composed id for the html id fields.
+     *
+     * @return string HTML or '', if description property is empty.
+     *
+     * @since 0.2.1
+     */
     protected function getHTMLDescription($composedID)
     {
         $description = $this->getDescription();
-		if (empty($description)) {
-			return '';
-		}
+        if (empty($description)) {
+            return '';
+        }
 
-		$escID = esc_attr($composedID);
+        $escID = esc_attr($composedID);
 
-		return '<p class="description" id="' . $escID . '-description">' . $this->getEscText($description) . '</p>';
-	}
+        return '<p class="description" id="' . $escID . '-description">' . $this->getEscText($description) . '</p>';
+    }
 
 
     abstract public function sanitize($input);
@@ -150,7 +144,6 @@ abstract class Option extends SettingsBase
                     $validInput[$module] = array();
                 }
                 $validInput[$module][$key] = $sanitized;
-
             } else {
                 $validInput[$module][$key] = $this->getEmptyValue();
             }
@@ -162,11 +155,11 @@ abstract class Option extends SettingsBase
     }
 
 
-    public function sanitizeText($input, $multiLine=false)
+    public function sanitizeText($input, $multiLine = false)
     {
-		if ( ! isset( $input ) ) {
-			return $this->getEmptyValue();
-		}
+        if (!isset($input)) {
+            return $this->getEmptyValue();
+        }
 
         if ($this->get('allowScripts', false)) {
             $allowedTags = wp_kses_allowed_html('post');
@@ -196,24 +189,24 @@ abstract class Option extends SettingsBase
 
     public function displayInput($type, $baseClass)
     {
-		// Get current value.
-		$value = $this->getValue();
+        // Get current value.
+        $value = $this->getValue();
 
-		// Assemble a compound and escaped id string.
-		$escID = esc_attr($this->getID());
-		// Assemble an escaped name string. The name attribute is importan, it defines the keys for the $input array in validation.
-        $escName = esc_attr($this->getDBKey().'['.$this->getModule() . '][' . $this->getID() . ']' );
+        // Assemble a compound and escaped id string.
+        $escID = esc_attr($this->getID());
+        // Assemble an escaped name string. The name attribute is importan, it defines the keys for the $input array in validation.
+        $escName = esc_attr($this->getDBKey() . '[' . $this->getModule() . '][' . $this->getID() . ']');
 
         $class = $baseClass;
 
-		// Compose output.
-		$escHtml = '<input type="'.esc_attr($type).'" id="' . $escID . '" name="' . $escName . '" value="' . esc_attr( $value ) . '" class="'.esc_attr($class).'" />';
-		$escHtml .= $this->getHTMLDisplayLabelFor($escID);
-		$escHtml .= $this->getHTMLDescription($escID);
+        // Compose output.
+        $escHtml = '<input type="' . esc_attr($type) . '" id="' . $escID . '" name="' . $escName . '" value="' . esc_attr($value) . '" class="' . esc_attr($class) . '" />';
+        $escHtml .= $this->getHTMLDisplayLabelFor($escID);
+        $escHtml .= $this->getHTMLDescription($escID);
 
-		// phpcs:disable WordPress.XSS.EscapeOutput
-		// $esc_html contains only escaped content.
-		echo $escHtml;
-		// phpcs:enable WordPress.XSS.EscapeOutput
+        // phpcs:disable WordPress.XSS.EscapeOutput
+        // $esc_html contains only escaped content.
+        echo $escHtml;
+        // phpcs:enable WordPress.XSS.EscapeOutput
     }
 }

@@ -1,15 +1,13 @@
 <?php
+
 /**
- * Vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4:
+ * Kuetemeier WordPress Plugin - Setting - Section
  *
- * @package    kuetemeier-essentials
- * @author     Jörg Kütemeier (https://kuetemeier.de/kontakt)
- * @license    GNU General Public License 3
- * @link       https://kuetemeier.de
- * @copyright  2018 Jörg Kütemeier
- *
- *
- * Copyright 2018 Jörg Kütemeier (https://kuetemeier.de/kontakt)
+ * @package   kuetemeier-essentials
+ * @author    Jörg Kütemeier (https://kuetemeier.de/kontakt)
+ * @license   GNU General Public License 3
+ * @link      https://kuetemeier.de
+ * @copyright 2018 Jörg Kütemeier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,14 +25,12 @@
 
 namespace Kuetemeier\WordPress\Settings;
 
-/*********************************
- * KEEP THIS for security reasons
- * blocking direct access to our plugin PHP files by checking for the ABSPATH constant
- */
-defined( 'ABSPATH' ) || die( 'No direct call!' );
+// KEEP THIS for security reasons - blocking direct access to the PHP files by checking for the ABSPATH constant.
+defined('ABSPATH') || die('No direct call!');
 
 
-class Section extends SettingsBase {
+class Section extends SettingsBase
+{
 
     public function __construct($pageConfig)
     {
@@ -44,12 +40,12 @@ class Section extends SettingsBase {
     }
 
 
-    public function callback__displaySection()
+    public function callbackDisplaySection()
     {
         $this->echoContent();
 
         $registeredOptions = $this->getRegisteredOptions();
-        foreach($registeredOptions->keys() as $key) {
+        foreach ($registeredOptions->keys() as $key) {
             $option = $registeredOptions->get($key);
             $option->echoCustomContent();
         }
@@ -64,7 +60,8 @@ class Section extends SettingsBase {
         if (empty($this->get('tabs'))) {
             return false;
         }
-        return (isset($this->get('tabs'){$tab}));
+        return (isset($this->get('tabs') {
+            $tab}));
     }
 
 
@@ -76,49 +73,48 @@ class Section extends SettingsBase {
      */
     public function adminInitFromPage($page)
     {
-        $sectionID = 'k-p-'.$page->get('id').'-s-'.$this->get('id');
+        $sectionID = 'k-p-' . $page->get('id') . '-s-' . $this->get('id');
 
         add_settings_section(
             $sectionID, // id
             $this->get('title'), // title
-            array($this, 'callback__displaySection'), // display callback
+            array($this, 'callbackDisplaySection'), // display callback
             $page->getID() // page
         );
 
         $registeredOptions = $this->getRegisteredOptions();
-        foreach($registeredOptions->keys() as $key) {
+        foreach ($registeredOptions->keys() as $key) {
             $option = $registeredOptions->get($key);
             $option->adminInitFromSection($page, $this, $sectionID, $page->getID());
         }
-
     }
 
 
     public function adminInitFromTab($page, $tab)
     {
-        $sectionID = 'k-t-'.$tab->get('id').'-s-'.$this->get('id');
-        $pageID = $page->getID().'-t-'.$tab->getID();
+        $sectionID = 'k-t-' . $tab->get('id') . '-s-' . $this->get('id');
+        $pageID = $page->getID() . '-t-' . $tab->getID();
 
         add_settings_section(
             $sectionID, // id
             $this->get('title'), // title
-            array($this, 'callback__displaySection'), // display callback
+            array($this, 'callbackDisplaySection'), // display callback
             $pageID // page
         );
 
         $registeredOptions = $this->getRegisteredOptions();
-        foreach($registeredOptions->keys() as $key) {
+        foreach ($registeredOptions->keys() as $key) {
             $option = $registeredOptions->get($key);
             $option->adminInitFromSection($page, $this, $sectionID, $pageID);
         }
-
     }
+
 
     public function validateOptions($input, $validInput)
     {
         $registeredOptions = $this->getRegisteredOptions();
 
-        foreach($registeredOptions->keys() as $key) {
+        foreach ($registeredOptions->keys() as $key) {
             $option = $registeredOptions->get($key);
             $validInput = $option->validateOptions($input, $validInput);
         }

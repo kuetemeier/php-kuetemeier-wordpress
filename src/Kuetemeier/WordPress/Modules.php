@@ -1,15 +1,13 @@
 <?php
+
 /**
- * Vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4:
+ * Kuetemeier WordPress Plugin - Modules
  *
- * @package    kuetemeier-essentials
- * @author     Jörg Kütemeier (https://kuetemeier.de/kontakt)
- * @license    GNU General Public License 3
- * @link       https://kuetemeier.de
- * @copyright  2018 Jörg Kütemeier
- *
- *
- * Copyright 2018 Jörg Kütemeier (https://kuetemeier.de/kontakt)
+ * @package   kuetemeier-essentials
+ * @author    Jörg Kütemeier (https://kuetemeier.de/kontakt)
+ * @license   GNU General Public License 3
+ * @link      https://kuetemeier.de
+ * @copyright 2018 Jörg Kütemeier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,14 +25,14 @@
 
 namespace Kuetemeier\WordPress;
 
-/*********************************
- * KEEP THIS for security reasons
- * blocking direct access to our plugin PHP files by checking for the ABSPATH constant
+// KEEP THIS for security reasons - blocking direct access to the PHP files by checking for the ABSPATH constant.
+defined('ABSPATH') || die('No direct call!');
+
+/**
+ * Kuetemeier WordPress Plugin - Modules
  */
-defined( 'ABSPATH' ) || die( 'No direct call!' );
-
-
-final class Modules extends \Kuetemeier\Collection\PriorityHash {
+final class Modules extends \Kuetemeier\Collection\PriorityHash
+{
 
     /**
      * Reference to the plugin configuration.
@@ -53,6 +51,7 @@ final class Modules extends \Kuetemeier\Collection\PriorityHash {
     {
         $this->config = $config;
     }
+
 
     /**
      * Load the php source file of all modules listed in `$modules_list` and adds their
@@ -84,44 +83,44 @@ final class Modules extends \Kuetemeier\Collection\PriorityHash {
         }
 
         // sort $all_modules by priority
-        uksort($all_modules, function($a, $b) {
-            return (int) $a - (int) $b;
+        uksort($all_modules, function ($a, $b) {
+            return (int)$a - (int)$b;
         });
 
         // prepare module namespace
-        $namespace = '\\'.$this->config->get('_plugin/modules/namespace', $this->config->get('_pro/plugin/modules/namespace')).'\\';
+        $namespace = '\\' . $this->config->get('_plugin/modules/namespace', $this->config->get('_pro/plugin/modules/namespace')) . '\\';
 
         // create hash for faster lookup
         $modules_list = array_flip($modules_list);
         // iterate over all available modules in priority order
-        foreach($all_modules as $moduleID => $prio) {
-
+        foreach ($all_modules as $moduleID => $prio) {
             // and load php source, if it is in the $modules_list
             if (isset($modules_list[$moduleID])) {
-                $srcdir = trailingslashit($this->config->get('_plugin/modules/srcdir', trailingslashit($this->config->get('_plugin/dir'), $this->config->get('_pro/plugin/dir')).'src/Modules'));
+                $srcdir = trailingslashit($this->config->get('_plugin/modules/srcdir', trailingslashit($this->config->get('_plugin/dir'), $this->config->get('_pro/plugin/dir')) . 'src/Modules'));
 
                 $ucModuleID = ucfirst($moduleID);
                 //require_once $srcdir.'class-'.$module_id.'.php';
-                require_once $srcdir.$ucModuleID.'.php';
+                require_once $srcdir . $ucModuleID . '.php';
 
                 //$class_name = $namespace.ucfirst($module_id);
-                $class_name = $namespace.$ucModuleID;
+                $class_name = $namespace . $ucModuleID;
 
                 $manifest = $class_name::manifest();
 
-                $this->config->set('_default/'.$moduleID, $manifest['config'], true);
+                $this->config->set('_default/' . $moduleID, $manifest['config'], true);
 
                 $this->set($moduleID, $prio, $class_name);
             }
         }
     }
 
+
     public function init()
     {
         // get all modules that come with this plugin (default: none - empty array)
-        $all_modules     = array_keys($this->config->get('_plugin/modules/available', array()));
+        $all_modules = array_keys($this->config->get('_plugin/modules/available', array()));
         $default_enabled = $this->config->get('_plugin/modules/default-enabled', array());
-        $always_enabled  = $this->config->get('_plugin/modules/always-enabled', array());
+        $always_enabled = $this->config->get('_plugin/modules/always-enabled', array());
 
         // load only activated modules (with fallback to all) if this is a frontend call
         //$modules_list = (is_admin()) ? $all_modules : $this->config->get('_/options/modules/enabled', $default_enabled);
@@ -132,42 +131,42 @@ final class Modules extends \Kuetemeier\Collection\PriorityHash {
         $this->loadSources($modules_list);
     }
 
+
     public function initModuleClasses()
     {
         $this->map(
-            function($moduleClass)
-            {
+            function ($moduleClass) {
                 return new $moduleClass($this->config);
             }
         );
     }
 
+
     public function foreachCommonInit()
     {
         $this->foreach(
-            function($id, $module)
-            {
+            function ($id, $module) {
                 $module->commonInit();
             }
         );
     }
 
+
     public function foreachAdminInit($options)
     {
         $this->foreachWithArgs(
-            function($id, $module, $options)
-            {
+            function ($id, $module, $options) {
                 $module->adminInit($options);
             },
             $options
         );
     }
 
+
     public function foreachFrontendInit()
     {
         $this->foreach(
-            function($id, $module)
-            {
+            function ($id, $module) {
                 $module->frontendInit();
             }
         );

@@ -1,15 +1,13 @@
 <?php
+
 /**
- * Vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4:
+ * Kuetemeier WordPress Plugin - Plugin
  *
- * @package    kuetemeier-essentials
- * @author     Jörg Kütemeier (https://kuetemeier.de/kontakt)
- * @license    GNU General Public License 3
- * @link       https://kuetemeier.de
- * @copyright  2018 Jörg Kütemeier
- *
- *
- * Copyright 2018 Jörg Kütemeier (https://kuetemeier.de/kontakt)
+ * @package   kuetemeier-essentials
+ * @author    Jörg Kütemeier (https://kuetemeier.de/kontakt)
+ * @license   GNU General Public License 3
+ * @link      https://kuetemeier.de
+ * @copyright 2018 Jörg Kütemeier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,25 +25,25 @@
 
 namespace Kuetemeier\WordPress;
 
-/*********************************
- * KEEP THIS for security reasons
- * blocking direct access to our plugin PHP files by checking for the ABSPATH constant
- */
-defined( 'ABSPATH' ) || die( 'No direct call!' );
+// KEEP THIS for security reasons - blocking direct access to the PHP files by checking for the ABSPATH constant.
+defined('ABSPATH') || die('No direct call!');
 
 
-abstract class Plugin {
+abstract class Plugin
+{
 
-	protected $config;
-	protected $options;
+    protected $config;
 
-	/**
-	 * Initialize the plugin, load frontend modules and prepare backend modules.
-	 *
-	 * @param Config  Initial Plugin Config.
-	 *
-	 * @since 0.1.0
-	 */
+
+    protected $options;
+
+    /**
+     * Initialize the plugin, load frontend modules and prepare backend modules.
+     *
+     * @param Config  Initial Plugin Config.
+     *
+     * @since 0.1.0
+     */
     public function __construct($config = array())
     {
         $this->config = (is_array($config)) ? new Config($config) : $config;
@@ -54,30 +52,30 @@ abstract class Plugin {
             wp_die('ERROR Missing "_plugin/id" configuration for Plugin');
         }
 
-		if (!$this->config->has('_plugin/version/this')) {
-			wp_die('Missing "_plugin/version/this" configuration for Plugin');
-		}
+        if (!$this->config->has('_plugin/version/this')) {
+            wp_die('Missing "_plugin/version/this" configuration for Plugin');
+        }
 
-		if (!$this->config->has('_plugin/version/stable')) {
-			wp_die('Missing "_plugin/version/stable" configuration for Plugin');
-		}
+        if (!$this->config->has('_plugin/version/stable')) {
+            wp_die('Missing "_plugin/version/stable" configuration for Plugin');
+        }
 
-		if (!$this->config->has('_plugin/options/key')) {
-			wp_die('Missing "_plugin/options/key" configuration for Plugin');
-		}
+        if (!$this->config->has('_plugin/options/key')) {
+            wp_die('Missing "_plugin/options/key" configuration for Plugin');
+        }
 
         $this->config->set('_pluginInstance', $this, true);
 
         // pro plugin?
         if ($this->isProPlugin()) {
-            add_action($this->config->get('_plugin/parent').'-Plugin-Loaded', array(&$this, 'callback__ParentLoaded'));
+            add_action($this->config->get('_plugin/parent') . '-Plugin-Loaded', array(&$this, 'callbackParentLoaded'));
         } else {
-            add_action('plugins_loaded', array(&$this, 'callback__PluginsLoaded'));
+            add_action('plugins_loaded', array(&$this, 'callbackPluginsLoaded'));
         }
     }
 
 
-    public function callback__ParentLoaded($parent_config)
+    public function callbackParentLoaded($parent_config)
     {
         $this->config->set('_parent', $parent_config, true);
 
@@ -91,10 +89,11 @@ abstract class Plugin {
     }
 
 
-    public function callback__PluginsLoaded() {
+    public function callbackPluginsLoaded()
+    {
         $this->config->getOptionsFromDB();
 
-        do_action($this->config->get('_plugin/id').'-Plugin-Loaded', $this->config);
+        do_action($this->config->get('_plugin/id') . '-Plugin-Loaded', $this->config);
 
         $this->initModules();
     }
@@ -126,7 +125,6 @@ abstract class Plugin {
             if ($pro) {
                 $proModules->foreachAdminInit($this->options);
             }
-
         } else {
             $modules->foreachFrontendInit();
             if ($pro) {
@@ -136,50 +134,50 @@ abstract class Plugin {
     }
 
 
-	/**
-	 * Cloning is forbidden.
-	 *
-	 * @return void
-	 *
-	 * @since 0.1.0
-	 */
+    /**
+     * Cloning is forbidden.
+     *
+     * @return void
+     *
+     * @since 0.1.0
+     */
     public function __clone()
     {
-		_doing_it_wrong(__FUNCTION__, esc_html__('Don\'t clone me!', 'kuetemeier-essentials' ), esc_attr($this->version()));
-	}
+        _doing_it_wrong(__FUNCTION__, esc_html__('Don\'t clone me!', 'kuetemeier-essentials'), esc_attr($this->version()));
+    }
 
 
-	/**
-	 * Unserializing instances of this class is forbidden.
-	 *
-	 * @return void
-	 *
-	 * @since 0.1.0
-	 */
+    /**
+     * Unserializing instances of this class is forbidden.
+     *
+     * @return void
+     *
+     * @since 0.1.0
+     */
     public function __wakeup()
     {
-		_doing_it_wrong(__FUNCTION__, esc_html__('No wake up please!', 'kuetemeier-essentials'), esc_attr($this->version()));
-	}
+        _doing_it_wrong(__FUNCTION__, esc_html__('No wake up please!', 'kuetemeier-essentials'), esc_attr($this->version()));
+    }
 
 
-	/**
-	 * Checks if this plugin is based on a known stable version.
-	 *
-	 * Hint: this may not be the 'last' stable verstion.
-	 *
-	 * @return  bool True if it is a stable version, false otherwise.
-	 *
-	 * @since 0.1.11
-	 */
+    /**
+     * Checks if this plugin is based on a known stable version.
+     *
+     * Hint: this may not be the 'last' stable verstion.
+     *
+     * @return bool True if it is a stable version, false otherwise.
+     *
+     * @since 0.1.11
+     */
     public function isStableVersion()
     {
-		return (version_compare($this->config->get('_plugin/version/this'), $this->config->get('_plugin/version/stable')) === 0);
-	}
+        return (version_compare($this->config->get('_plugin/version/this'), $this->config->get('_plugin/version/stable')) === 0);
+    }
 
 
     public function getVersion()
     {
-		return $this->config->get('_plugin/version/this');
+        return $this->config->get('_plugin/version/this');
     }
 
 

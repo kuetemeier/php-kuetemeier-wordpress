@@ -1,15 +1,13 @@
 <?php
+
 /**
- * Vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4:
+ * Kuetemeier WordPress Plugin - Setting - SubPage
  *
- * @package    kuetemeier-essentials
- * @author     Jörg Kütemeier (https://kuetemeier.de/kontakt)
- * @license    GNU General Public License 3
- * @link       https://kuetemeier.de
- * @copyright  2018 Jörg Kütemeier
- *
- *
- * Copyright 2018 Jörg Kütemeier (https://kuetemeier.de/kontakt)
+ * @package   kuetemeier-essentials
+ * @author    Jörg Kütemeier (https://kuetemeier.de/kontakt)
+ * @license   GNU General Public License 3
+ * @link      https://kuetemeier.de
+ * @copyright 2018 Jörg Kütemeier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,16 +25,15 @@
 
 namespace Kuetemeier\WordPress\Settings;
 
-/*********************************
- * KEEP THIS for security reasons
- * blocking direct access to our plugin PHP files by checking for the ABSPATH constant
- */
-defined( 'ABSPATH' ) || die( 'No direct call!' );
+// KEEP THIS for security reasons - blocking direct access to the PHP files by checking for the ABSPATH constant.
+defined('ABSPATH') || die('No direct call!');
 
 
-class SubPage extends Page {
+class SubPage extends Page
+{
 
-	public function __construct($pageConfig) {
+    public function __construct($pageConfig)
+    {
 
         // shortcut 'parent' for 'parentSlug'
         if (isset($pageConfig['parent'])) {
@@ -52,7 +49,8 @@ class SubPage extends Page {
         }
     }
 
-    public function callback__admin_menu($config) {
+    public function callbackAdminMenu($config)
+    {
         add_submenu_page(
             // parent_slug - The slug name for the parent menu (or the file name of a standard WordPress admin page).
             $this->get('parentSlug'),

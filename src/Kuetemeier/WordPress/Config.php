@@ -25,10 +25,7 @@
 
 namespace Kuetemeier\WordPress;
 
-/*********************************
- * KEEP THIS for security reasons
- * blocking direct access to our plugin PHP files by checking for the ABSPATH constant
- */
+// KEEP THIS for security reasons - blocking direct access to the PHP files by checking for the ABSPATH constant.
 defined('ABSPATH') || die('No direct call!');
 
 

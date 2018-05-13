@@ -1,15 +1,13 @@
 <?php
+
 /**
- * Vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4:
+ * Kuetemeier WordPress Plugin - Setting - Page
  *
- * @package    kuetemeier-essentials
- * @author     Jörg Kütemeier (https://kuetemeier.de/kontakt)
- * @license    GNU General Public License 3
- * @link       https://kuetemeier.de
- * @copyright  2018 Jörg Kütemeier
- *
- *
- * Copyright 2018 Jörg Kütemeier (https://kuetemeier.de/kontakt)
+ * @package   kuetemeier-essentials
+ * @author    Jörg Kütemeier (https://kuetemeier.de/kontakt)
+ * @license   GNU General Public License 3
+ * @link      https://kuetemeier.de
+ * @copyright 2018 Jörg Kütemeier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,14 +25,12 @@
 
 namespace Kuetemeier\WordPress\Settings;
 
-/*********************************
- * KEEP THIS for security reasons
- * blocking direct access to our plugin PHP files by checking for the ABSPATH constant
- */
-defined( 'ABSPATH' ) || die( 'No direct call!' );
+// KEEP THIS for security reasons - blocking direct access to the PHP files by checking for the ABSPATH constant.
+defined('ABSPATH') || die('No direct call!');
 
 
-class Page extends SettingsBase {
+class Page extends SettingsBase
+{
 
 
     private $replaceBySubPage = null;
@@ -45,26 +41,25 @@ class Page extends SettingsBase {
         parent::__construct($pageConfig, $required);
 
         $this->set('menuTitle', $this->get('title'), false);
-        add_action('admin_init', array(&$this, 'callback__admin_init'));
+        add_action('admin_init', array(&$this, 'callbackAdminInit'));
     }
 
 
-    public function callback__admin_init()
+    public function callbackAdminInit()
     {
         $currentPage = $this->getCurrentPage();
 
         // empty for option page submit
         // TODO, test if nessesariy
         if (empty($currentPage) || $currentPage === $this->getId()) {
-
             $this->getRegisteredSections()->foreach(
-                function($key, $section) {
+                function ($key, $section) {
                     $section->adminInitFromPage($this);
                 }
             );
 
             $this->getRegisteredTabs()->foreach(
-                function($key, $tab) {
+                function ($key, $tab) {
                     $tab->adminInitFromPage($this);
                 }
             );
@@ -84,20 +79,20 @@ class Page extends SettingsBase {
         if ($this->has('parentSlug')) {
             $parentPage = $this->getPluginOptions()->getPage($this->get('parentSlug'));
             if (isset($parentPage)) {
-                $title = $parentPage->get('title').' > '.$title;
+                $title = $parentPage->get('title') . ' > ' . $title;
             }
         }
         return $title;
     }
 
 
-    public function callback__admin_menu($config)
+    public function callbackAdminMenu($config)
     {
-		add_menu_page(
-			$this->getFullPageTitle(), // page title
-			$this->get('menuTitle'), // menu title
-			$this->get('capability'), // capability
-			$this->get('slug'), // menu slug
+        add_menu_page(
+            $this->getFullPageTitle(), // page title
+            $this->get('menuTitle'), // menu title
+            $this->get('capability'), // capability
+            $this->get('slug'), // menu slug
             $this->get('displayFunction'), // function
             '', // icon
             $this->get('priority')
@@ -110,22 +105,21 @@ class Page extends SettingsBase {
         $tabs = $this->get('_registered/tabs');
         $keys = $tabs->keys();
 
-		if (count($keys) > 0 ) {
-
-			echo '<br />';
+        if (count($keys) > 0) {
+            echo '<br />';
             echo '<h2 class="nav-tab-wrapper">';
 
             $slug = $this->get('slug');
 
-			foreach ($keys as $key) {
+            foreach ($keys as $key) {
                 $tab = $tabs->get($key);
                 $title = $tab->get('title');
-				if ( $key === $currentTab ) {
-                    echo '<a class="nav-tab nav-tab-active" href="?page=' . esc_attr( $slug ) . '&tab=' . esc_attr( $key ) . '">' . esc_html( $title ) . '</a>';
-				} else {
-					echo '<a class="nav-tab" href="?page=' . esc_attr( $slug ) . '&tab=' . esc_attr( $key ) . '">' . esc_html( $title ) . '</a>';
-				}
-			}
+                if ($key === $currentTab) {
+                    echo '<a class="nav-tab nav-tab-active" href="?page=' . esc_attr($slug) . '&tab=' . esc_attr($key) . '">' . esc_html($title) . '</a>';
+                } else {
+                    echo '<a class="nav-tab" href="?page=' . esc_attr($slug) . '&tab=' . esc_attr($key) . '">' . esc_html($title) . '</a>';
+                }
+            }
 
             echo '</h2>';
 
@@ -149,13 +143,13 @@ class Page extends SettingsBase {
 
     public function getCurrentPage()
     {
-        return ( isset( $_GET['page'] ) ? sanitize_key( $_GET['page'] ) : '' );
+        return (isset($_GET['page']) ? sanitize_key($_GET['page']) : '');
     }
 
 
     public function getCurrentTab()
     {
-        $currentTab =  ( isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : '' );;
+        $currentTab = (isset($_GET['tab']) ? sanitize_key($_GET['tab']) : '');
         $tabs = $this->getRegisteredTabs();
         if (empty($currentTab) || !$tabs->has($currentTab)) {
             if ($tabs->count() > 0) {
@@ -168,7 +162,7 @@ class Page extends SettingsBase {
     }
 
 
-    public function callback__defaultDisplayFunction($args)
+    public function callbackDefaultDisplayFunction($args)
     {
         if (empty($this->replaceBySubPage)) {
             $page = $this->get('slug');
@@ -188,25 +182,25 @@ class Page extends SettingsBase {
             ?>
             <div class="wrap">
 
-                <h2><?php echo esc_html( $this->getFullPageTitle() ); ?></h2>
+                <h2><?php echo esc_html($this->getFullPageTitle()); ?></h2>
 
                 <?php
-                    if ($this->hasContent()) {
-                        ?>
-                        <div id="<?php echo esc_attr( $this->get('id') ); ?>">
+                if ($this->hasContent()) {
+                    ?>
+                        <div id="<?php echo esc_attr($this->get('id')); ?>">
                             <?php $this->echoContent(); ?>
                         </div>
-                        <?php
-                    }
-                    do_settings_sections( $page );
-                    $this->displayTabs($tabID);
+                    <?php
+                }
+                do_settings_sections($page);
+                $this->displayTabs($tabID);
                 ?>
                 <?php settings_errors(); ?>
 
                 <form method="post" action="options.php">
                     <?php
-                    settings_fields( $page );
-                    do_settings_sections( $page.'-t-'.$tabID );
+                    settings_fields($page);
+                    do_settings_sections($page . '-t-' . $tabID);
                     $dbKey = $this->getDBKey();
                     $saveButtonText = $this->get('config')->get('plugin/options/saveButtonText', 'Save');
                     $resetButtonText = $this->get('config')->get('plugin/options/resetButtonText', 'Reset to Defaults');
@@ -215,7 +209,7 @@ class Page extends SettingsBase {
                         ?>
 
                         <p class="submit">
-                            <input name="<?php esc_attr_e($dbKey) ?>[submit|<?php esc_attr_e( $page ); ?>|<?php echo esc_attr( $tabID ); ?>]" type="submit" class="button-primary" value="<?php esc_attr_e($saveButtonText); ?>" />
+                            <input name="<?php esc_attr_e($dbKey) ?>[submit|<?php esc_attr_e($page); ?>|<?php echo esc_attr($tabID); ?>]" type="submit" class="button-primary" value="<?php esc_attr_e($saveButtonText); ?>" />
                             <?php /*<input name="<?php esc_attr_e($dbKey) ?>[reset|<?php esc_attr_e( $page ); ?>|<?php esc_attr_e( $tabID ); ?>]" type="submit" class="button-secondary" value="<?php esc_attr_e($resetButtonText); ?>" /> */ ?>
                         </p>
                         <?php
@@ -228,17 +222,11 @@ class Page extends SettingsBase {
     }
 
 
-    public function sanitizeSettings()
-    {
-
-    }
-
-
     public function validateOptions($input, $validInput, $tabID)
     {
         $registeredOptions = $this->getRegisteredOptions();
 
-        foreach($registeredOptions->keys() as $key) {
+        foreach ($registeredOptions->keys() as $key) {
             $option = $registeredOptions->get($key);
             $validInput = $option->validateOptions($input, $validInput);
         }

@@ -1,8 +1,8 @@
 # php-kuetemeier-wordpress
-Description: A Collection of PHP classes for WordPress Plugin Development
+Description: A Collection of PHP class for WordPress Plugin Development
 
-Version: 1.1.0  
-Latest Stable Version: 1.1.0
+Version: 1.1.1  
+Latest Stable Version: 1.1.1
 
 License: Apache-2.0
 

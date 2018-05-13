@@ -144,7 +144,7 @@ final class Modules extends \Kuetemeier\Collection\PriorityHash
 
     public function foreachCommonInit()
     {
-        $this->foreach(
+        $this->doForeach(
             function ($id, $module) {
                 $module->commonInit();
             }
@@ -165,7 +165,7 @@ final class Modules extends \Kuetemeier\Collection\PriorityHash
 
     public function foreachFrontendInit()
     {
-        $this->foreach(
+        $this->doForeach(
             function ($id, $module) {
                 $module->frontendInit();
             }

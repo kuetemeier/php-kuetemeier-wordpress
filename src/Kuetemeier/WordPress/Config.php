@@ -1,15 +1,13 @@
 <?php
+
 /**
- * Vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4:
+ * Kuetemeier WordPress Plugin - Config
  *
- * @package    kuetemeier-essentials
- * @author     Jörg Kütemeier (https://kuetemeier.de/kontakt)
- * @license    GNU General Public License 3
- * @link       https://kuetemeier.de
- * @copyright  2018 Jörg Kütemeier
- *
- *
- * Copyright 2018 Jörg Kütemeier (https://kuetemeier.de/kontakt)
+ * @package   kuetemeier-essentials
+ * @author    Jörg Kütemeier (https://kuetemeier.de/kontakt)
+ * @license   GNU General Public License 3
+ * @link      https://kuetemeier.de
+ * @copyright 2018 Jörg Kütemeier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,17 +29,20 @@ namespace Kuetemeier\WordPress;
  * KEEP THIS for security reasons
  * blocking direct access to our plugin PHP files by checking for the ABSPATH constant
  */
-defined( 'ABSPATH' ) || die( 'No direct call!' );
+defined('ABSPATH') || die('No direct call!');
 
 
-final class Config extends \Kuetemeier\Collection\Collection {
+final class Config extends \Kuetemeier\Collection\Collection
+{
 
-    public function __construct($initValues = null) {
+    public function __construct($initValues = null)
+    {
         parent::__construct($initValues);
     }
 
 
-    public function getOptionsFromDB() {
+    public function getOptionsFromDB()
+    {
         $db_key = $this->get('_plugin/options/key');
         $this->set('_db-options', get_option($db_key));
     }
@@ -66,9 +67,9 @@ final class Config extends \Kuetemeier\Collection\Collection {
         } else {
             $newValues = false;
             $dbOptions = $this->get('_db-options');
-            foreach($this->get('_default') as $key => $value) {
+            foreach ($this->get('_default') as $key => $value) {
                 if (!isset($dbOptions[$key])) {
-                    $this->set('_db-options/'.$key, $value, 1);
+                    $this->set('_db-options/' . $key, $value, 1);
                     $newValues = true;
                 }
             }
@@ -92,35 +93,35 @@ final class Config extends \Kuetemeier\Collection\Collection {
     }
 
 
-    public function getDefault($key, $module='', $default=null)
+    public function getDefault($key, $module = '', $default = null)
     {
         if (empty($key)) {
             return $default;
         }
         if (empty($module)) {
-            return $this->get('_default/'.$key, $default);
+            return $this->get('_default/' . $key, $default);
         } else {
-            return $this->get('_default/'.$module.'/'.$key, $default);
+            return $this->get('_default/' . $module . '/' . $key, $default);
         }
     }
 
 
-    public function getOption($key, $module='', $default=null)
+    public function getOption($key, $module = '', $default = null)
     {
         if (empty($key)) {
             return $default;
         }
         if (empty($module)) {
-            return $this->get('_db-options/'.$key, $default);
+            return $this->get('_db-options/' . $key, $default);
         } else {
-            return $this->get('_db-options/'.$module.'/'.$key, $default);
+            return $this->get('_db-options/' . $module . '/' . $key, $default);
         }
     }
 
 
     public function getOptionWithDefault($key, $module)
     {
-        $ret =  $this->getOption($key, $module, null);
+        $ret = $this->getOption($key, $module, null);
         if ($ret === null) {
             $ret = $this->getDefault($key, $module);
         }

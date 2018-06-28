@@ -117,6 +117,10 @@ class Section extends SettingsBase
         foreach ($registeredOptions->keys() as $key) {
             $option = $registeredOptions->get($key);
             $validInput = $option->validateOptions($input, $validInput);
+            $onChange = $option->get('onChange');
+            if (isset($onChange) && is_callable($onChange)) {
+                $onChange($validInput);
+            }
         }
 
         return $validInput;

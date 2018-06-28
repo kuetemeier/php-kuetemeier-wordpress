@@ -139,6 +139,10 @@ abstract class Option extends SettingsBase
                 $value = $input[$module][$key];
 
                 $sanitized = $this->sanitize($value);
+                $onSanitize = $this->get('onSanitize');
+                if (isset($onSanitize)) {
+                    $sanitized = $onSanitize($value, $sanitized);
+                }
 
                 if (!isset($validInput[$module])) {
                     $validInput[$module] = array();
@@ -159,6 +163,10 @@ abstract class Option extends SettingsBase
     {
         if (!isset($input)) {
             return $this->getEmptyValue();
+        }
+
+        if ($this->get('doNotFilter', false)) {
+            return $input;
         }
 
         if ($this->get('allowScripts', false)) {

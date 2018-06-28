@@ -52,13 +52,13 @@ class Page extends SettingsBase
         // empty for option page submit
         // TODO, test if nessesariy
         if (empty($currentPage) || $currentPage === $this->getId()) {
-            $this->getRegisteredSections()->foreach(
+            $this->getRegisteredSections()->doForeach(
                 function ($key, $section) {
                     $section->adminInitFromPage($this);
                 }
             );
 
-            $this->getRegisteredTabs()->foreach(
+            $this->getRegisteredTabs()->doForeach(
                 function ($key, $tab) {
                     $tab->adminInitFromPage($this);
                 }
@@ -229,6 +229,10 @@ class Page extends SettingsBase
         foreach ($registeredOptions->keys() as $key) {
             $option = $registeredOptions->get($key);
             $validInput = $option->validateOptions($input, $validInput);
+            $onChange = $option->get('onChange');
+            if (isset($onChange) && is_callable($onChange)) {
+                $onChange($validInput);
+            }
         }
 
         $registeredTabs = $this->getRegisteredTabs();

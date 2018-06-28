@@ -80,4 +80,18 @@ abstract class PluginModule
         }
         return $this->config->getOption($key, $module, $default);
     }
+
+
+    /**
+     * Shortcut for Modules, so they don't have to hardcode their ID on options requests.
+     *
+     * @see Config::getOption
+     */
+    public function setOption($key, $value, $module = '')
+    {
+        if (empty($module)) {
+            $module = $this->manifest()['id'];
+        }
+        return $this->config->getOption($key, $value, $module);
+    }
 }

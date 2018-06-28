@@ -40,7 +40,7 @@ final class Config extends \Kuetemeier\Collection\Collection
 
     public function getOptionsFromDB()
     {
-        $db_key = $this->get('_plugin/options/key');
+        $db_key = $this->getDBKey();
         $this->set('_db-options', get_option($db_key));
     }
 
@@ -73,7 +73,7 @@ final class Config extends \Kuetemeier\Collection\Collection
 
             if ($newValues) {
                 update_option(
-                    $this->get('_plugin/options/key'),
+                    $this->getDBKey(),
                     $this->get('_db-options'),
                     1
                 );
@@ -123,5 +123,33 @@ final class Config extends \Kuetemeier\Collection\Collection
             $ret = $this->getDefault($key, $module);
         }
         return $ret;
+    }
+
+
+    public function setOption($key, $value, $module = '')
+    {
+        if (empty($key)) {
+            return false;
+        }
+        if (empty($module)) {
+            $this->set('_db-options/' . $key, $value, true);
+        } else {
+            $this->set('_db-options/' . $module . '/' . $key, $value, true);
+        }
+        $dbKey = $this->getDBKey();
+
+        $result = update_option(
+            $this->getDBKey(),
+            $this->get('_db-options'),
+            1
+        );
+
+        return $result;
+    }
+
+
+    public function getDBKey()
+    {
+        return $this->get('_plugin/options/key');
     }
 }
